@@ -5,6 +5,7 @@ import { Upload } from './pages/upload/upload';
 import { Transactions } from './pages/transactions/transactions';
 import { Tags } from './pages/tags/tags';
 import { Report } from './pages/report/report';
+import { Home } from './pages/home/home';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
@@ -13,5 +14,5 @@ export const routes: Routes = [
   { path: 'transactions', component: Transactions },
   { path: 'tags', component: Tags },
   { path: 'report/:month', component: Report },
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+  { path: '', component: Home }
 ];

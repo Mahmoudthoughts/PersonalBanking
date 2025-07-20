@@ -1,1 +1,21 @@
-<p>transactions works!</p>
+<div class="container mt-4">
+  <h2>Transactions</h2>
+  <table class="table table-striped" *ngIf="transactions.length">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Amount</th>
+        <th>Cardholder</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let t of transactions">
+        <td>{{ t.date }}</td>
+        <td>{{ t.description }}</td>
+        <td>{{ t.amount }}</td>
+        <td>{{ t.cardholder_id }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
