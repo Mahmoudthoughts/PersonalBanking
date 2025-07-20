@@ -20,6 +20,13 @@ export class AuthService {
     );
   }
 
+  register(data: { name?: string; username?: string; email: string; password: string }) {
+    return this.http.post<{id: number}>(
+      `${environment.apiUrl}/auth/register`,
+      data
+    );
+  }
+
   get token(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
