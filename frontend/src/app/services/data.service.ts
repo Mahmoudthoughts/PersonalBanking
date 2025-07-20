@@ -9,4 +9,8 @@ export class DataService {
   getTransactions() {
     return this.http.get<any[]>(`${environment.apiUrl}/transactions`);
   }
+
+  createTransaction(payload: any) {
+    return this.http.post(`${environment.apiUrl}/transactions`, payload);
+  }
 }
