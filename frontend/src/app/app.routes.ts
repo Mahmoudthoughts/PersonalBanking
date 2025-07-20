@@ -6,9 +6,11 @@ import { Transactions } from './pages/transactions/transactions';
 import { Tags } from './pages/tags/tags';
 import { Report } from './pages/report/report';
 import { Home } from './pages/home/home';
+import { Register } from './pages/register/register';
 
 export const routes: Routes = [
   { path: 'login', component: Login },
+  { path: 'register', component: Register },
   { path: 'dashboard', component: Dashboard },
   { path: 'upload', component: Upload },
   { path: 'transactions', component: Transactions },
