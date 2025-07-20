@@ -7,10 +7,18 @@ This project is a mobile-first application to track and analyze monthly credit c
 1. Install Python dependencies:
    ```bash
    pip install -r backend/requirements.txt
-   ```
-2. Run the application:
+3. Run the application:
+
    ```bash
    python backend/run.py
    ```
 
-This repository contains an initial backend skeleton. Frontend code can be added under the `frontend/` directory following the structure in `AGENTS.md`.
+
+Basic API endpoints are available once the server is running:
+
+- `POST /auth/login` – obtain a JWT token
+- `GET /transactions` – list transactions
+- `POST /transactions` – create a transaction
+- `GET /tags` and `POST /tags`
+- `GET /cardholders` and `POST /cardholders`
+
