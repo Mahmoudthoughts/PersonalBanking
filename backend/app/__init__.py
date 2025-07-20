@@ -2,11 +2,10 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 
-from .routes import register_blueprints
-
-
 db = SQLAlchemy()
 jwt = JWTManager()
+
+from .routes import register_blueprints
 
 
 def create_app(config_object="app.config.Config"):
