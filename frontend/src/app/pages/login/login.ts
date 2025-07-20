@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -12,12 +12,14 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './login.scss'
 })
 export class Login {
-  form = this.fb.nonNullable.group({
-    email: '',
-    password: ''
-  });
+  form: FormGroup;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {}
+  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+    this.form = this.fb.nonNullable.group({
+      email: '',
+      password: ''
+    });
+  }
 
   submit() {
     const { email, password } = this.form.getRawValue();
