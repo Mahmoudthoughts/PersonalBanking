@@ -1,8 +1,10 @@
 from datetime import date
+import os
 from flask import Blueprint, request, jsonify
 
 from .. import db
 from ..models import Transaction
+from ..services.pdf_parser import parse_pdf
 
 bp = Blueprint('transactions', __name__, url_prefix='/transactions')
 
@@ -35,3 +37,30 @@ def create_transaction():
     db.session.add(transaction)
     db.session.commit()
     return jsonify({'id': transaction.id}), 201
+
+
+@bp.route('/upload_pdf', methods=['POST'])
+def upload_pdf():
+    """Upload a PDF statement and create transactions."""
+    file = request.files.get('file')
+    if not file:
+        return jsonify({'error': 'no file uploaded'}), 400
+
+    tmp_path = os.path.join('/tmp', file.filename)
+    file.save(tmp_path)
+
+    transactions = parse_pdf(tmp_path)
+    created = 0
+    for data in transactions:
+        transaction = Transaction(
+            date=data['date'],
+            description=data['description'],
+            amount=data['amount'],
+            cardholder_id=data.get('cardholder_id'),
+            source_file=file.filename,
+        )
+        db.session.add(transaction)
+        created += 1
+    db.session.commit()
+
+    return jsonify({'created': created}), 201
