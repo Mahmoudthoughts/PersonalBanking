@@ -18,7 +18,7 @@ A mobile-first Single Page Application (SPA) using Flask (Python) and Angular to
 | Database     | PostgreSQL (Azure-hosted)       |
 | File Parsing | pdfminer.six / PyMuPDF          |
 | Visuals      | Chart.js / ngx-charts           |
-| Reporting    | WeasyPrint or ReportLab         |
+| Reporting    | ReportLab                       |
 | Deployment   | Azure App Services + PostgreSQL |
 
 ---
@@ -158,7 +158,7 @@ GET /reports/:month
 * flask-jwt-extended
 * flask-sqlalchemy
 * flask-marshmallow (for serialization)
-* WeasyPrint (for PDF)
+* ReportLab (for PDF)
 
 ---
 
@@ -171,7 +171,7 @@ GET /reports/:month
 * Create Flask route to parse PDF and insert transactions into PostgreSQL
 * Build ngx-chart component for visualizing monthly spending by cardholder
 * Angular Bootstrap layout with sidebar filters and responsive cards
-* Generate HTML report template and export it to PDF using WeasyPrint
+* Generate HTML report template and export it to PDF using ReportLab
 
 ---
 
