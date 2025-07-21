@@ -28,6 +28,13 @@ export class AuthService {
     );
   }
 
+  logout(redirect: boolean = true): void {
+    localStorage.removeItem(this.tokenKey);
+    if (redirect) {
+      this.router.navigate(['/login']);
+    }
+  }
+
   get token(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
