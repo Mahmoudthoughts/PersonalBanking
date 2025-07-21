@@ -1,36 +1,36 @@
-<div class="table-responsive">
-  <table class="table table-striped align-middle">
-    <thead>
+<div class="overflow-x-auto">
+  <table class="min-w-full divide-y divide-gray-200 text-left">
+    <thead class="bg-gray-50">
       <tr>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Cardholder</th>
-        <th class="text-end">Total</th>
+        <th class="px-2 py-1">Date</th>
+        <th class="px-2 py-1">Description</th>
+        <th class="px-2 py-1">Cardholder</th>
+        <th class="px-2 py-1 text-right">Total</th>
       </tr>
     </thead>
     <tbody>
       <ng-container *ngFor="let tx of transactions; let i = index">
-        <tr (click)="tx.components && toggle(i)" [class.table-active]="expanded[i]">
-          <td>{{ tx.transaction_date }}</td>
-          <td>{{ tx.description }}</td>
-          <td>{{ tx.cardholder_name }}</td>
-          <td class="text-end">{{ tx.total_amount | currency }}</td>
+        <tr (click)="tx.components && toggle(i)" [class.bg-gray-100]="expanded[i]" class="cursor-pointer">
+          <td class="px-2 py-1">{{ tx.transaction_date }}</td>
+          <td class="px-2 py-1">{{ tx.description }}</td>
+          <td class="px-2 py-1">{{ tx.cardholder_name }}</td>
+          <td class="px-2 py-1 text-right">{{ tx.total_amount | currency }}</td>
         </tr>
         <tr *ngIf="tx.components && expanded[i]">
           <td colspan="4" class="p-0">
-            <table class="table mb-0">
-              <thead>
+            <table class="min-w-full">
+              <thead class="bg-gray-50">
                 <tr>
-                  <th>Label</th>
-                  <th>Amount</th>
-                  <th>VAT</th>
+                  <th class="px-2 py-1">Label</th>
+                  <th class="px-2 py-1">Amount</th>
+                  <th class="px-2 py-1">VAT</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let c of tx.components">
-                  <td>{{ c.label }}</td>
-                  <td>{{ c.amount | currency }}</td>
-                  <td>{{ c.vat | currency }}</td>
+                <tr *ngFor="let c of tx.components" class="even:bg-gray-50">
+                  <td class="px-2 py-1">{{ c.label }}</td>
+                  <td class="px-2 py-1">{{ c.amount | currency }}</td>
+                  <td class="px-2 py-1">{{ c.vat | currency }}</td>
                 </tr>
               </tbody>
             </table>
