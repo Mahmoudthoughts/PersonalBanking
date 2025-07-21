@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -21,8 +22,10 @@ export class Transactions implements OnInit {
     start: '',
     end: ''
   };
+  allTransactions: any[] = [];
 
-  constructor(private http: HttpClient) {}
+
+  constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.load();
@@ -40,5 +43,28 @@ export class Transactions implements OnInit {
       .subscribe(res => {
         this.transactions = res;
       });
+    this.http.get<any[]>(`${environment.apiUrl}/transactions`).subscribe(res => {
+      this.allTransactions = res;
+      this.applyFilters();
+      this.route.queryParams.subscribe(() => this.applyFilters());
+    });
+  }
+
+  private applyFilters() {
+    const params = this.route.snapshot.queryParams;
+    let filtered = [...this.allTransactions];
+
+    if (params['category']) {
+      filtered = filtered.filter(t => {
+        const cat = (t.tags && t.tags.length) ? t.tags[0].name : 'Uncategorized';
+        return cat === params['category'];
+      });
+    }
+
+    if (params['month']) {
+      filtered = filtered.filter(t => (t.date as string).startsWith(params['month']));
+    }
+
+    this.transactions = filtered;
   }
 }

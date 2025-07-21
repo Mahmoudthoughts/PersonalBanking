@@ -22,3 +22,25 @@ def create_tag():
     db.session.add(tag)
     db.session.commit()
     return jsonify({'id': tag.id}), 201
+
+
+@bp.route('/<int:tag_id>', methods=['PATCH'])
+def update_tag(tag_id: int):
+    """Update an existing tag."""
+    tag = Tag.query.get_or_404(tag_id)
+    payload = request.get_json() or {}
+    if 'name' in payload:
+        tag.name = payload['name']
+    if 'parent_id' in payload:
+        tag.parent_id = payload['parent_id']
+    db.session.commit()
+    return jsonify({'id': tag.id})
+
+
+@bp.route('/<int:tag_id>', methods=['DELETE'])
+def delete_tag(tag_id: int):
+    """Remove a tag."""
+    tag = Tag.query.get_or_404(tag_id)
+    db.session.delete(tag)
+    db.session.commit()
+    return jsonify({'status': 'deleted'})
