@@ -1,10 +1,11 @@
 from datetime import date
-import os
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
 from .. import db
 from ..models import Transaction, Tag
+import tempfile
+
 from ..services.pdf_parser import parse_pdf
 from ..services.cardholder_mapping import guess_cardholder
 from ..services.tagging import assign_tags, DEFAULT_KEYWORDS
@@ -87,8 +88,9 @@ def upload_pdf():
     if not file:
         return jsonify({'error': 'no file uploaded'}), 400
 
-    tmp_path = os.path.join('.', file.filename)
-    file.save(tmp_path)
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp:
+        file.save(tmp.name)
+        tmp_path = tmp.name
 
     transactions = parse_pdf(tmp_path)
     created = 0

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+import os
 import re
 from typing import List, Optional, Dict, Any
 
@@ -87,7 +88,7 @@ def parse_pdf(file_path: str) -> List[Dict[str, Any]]:
     Parameters
     ----------
     file_path:
-        Path to the PDF file.
+        Path to the PDF file. The file will be removed after parsing.
 
     Returns
     -------
@@ -95,33 +96,39 @@ def parse_pdf(file_path: str) -> List[Dict[str, Any]]:
         A list of transaction dictionaries matching the expected schema.
     """
 
-    text = extract_text(file_path)
-    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    try:
+        text = extract_text(file_path)
+        lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
 
-    transactions: List[Dict[str, Any]] = []
-    current: Optional[Dict[str, Any]] = None
+        transactions: List[Dict[str, Any]] = []
+        current: Optional[Dict[str, Any]] = None
 
-    for line in lines:
-        start = _parse_start_line(line)
-        if start:
-            if current:
-                current["description"] = " ".join(current.pop("_desc_lines"))
-                transactions.append(current)
-            current = start
-            current["components"] = []
-            current["_desc_lines"] = [start.pop("description")]
-            continue
+        for line in lines:
+            start = _parse_start_line(line)
+            if start:
+                if current:
+                    current["description"] = " ".join(current.pop("_desc_lines"))
+                    transactions.append(current)
+                current = start
+                current["components"] = []
+                current["_desc_lines"] = [start.pop("description")]
+                continue
 
-        if not current:
-            continue
+            if not current:
+                continue
 
-        comp = _parse_component_line(line)
-        if comp:
-            current["components"].append(comp)
-        current["_desc_lines"].append(line)
+            comp = _parse_component_line(line)
+            if comp:
+                current["components"].append(comp)
+            current["_desc_lines"].append(line)
 
-    if current:
-        current["description"] = " ".join(current.pop("_desc_lines"))
-        transactions.append(current)
+        if current:
+            current["description"] = " ".join(current.pop("_desc_lines"))
+            transactions.append(current)
 
-    return transactions
+        return transactions
+    finally:
+        try:
+            os.remove(file_path)
+        except OSError:
+            pass
