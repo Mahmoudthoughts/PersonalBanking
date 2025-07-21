@@ -3,7 +3,7 @@ from datetime import date
 import io
 
 from flask import Blueprint, render_template, request, send_file
-from WeasyPrint import HTML
+from weasyprint import HTML
 
 from ..models import Transaction
 
