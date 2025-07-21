@@ -25,7 +25,7 @@ def list_transactions():
     end = request.args.get('end')
 
     if amount is not None:
-        query = query.filter(Transaction.amount == amount)
+        query = query.filter(Transaction.total_amount == amount)
 
     if cardholder:
         query = query.filter(Transaction.cardholder_id == cardholder)
@@ -34,10 +34,10 @@ def list_transactions():
         query = query.filter(Transaction.description.ilike(f"%{desc}%"))
 
     if start:
-        query = query.filter(Transaction.date >= date.fromisoformat(start))
+        query = query.filter(Transaction.transaction_date >= date.fromisoformat(start))
 
     if end:
-        query = query.filter(Transaction.date <= date.fromisoformat(end))
+        query = query.filter(Transaction.transaction_date <= date.fromisoformat(end))
 
     if tag:
         query = query.join(Transaction.tags).filter(Tag.id == tag)
