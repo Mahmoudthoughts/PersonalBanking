@@ -1,6 +1,6 @@
 # Family Credit Card Spend Tracker
 
-This project is a mobile-first application to track and analyze monthly credit card spending for family members. It uses a Flask backend with an Angular frontend. Transactions are parsed from uploaded PDF statements and organized with tags for flexible reporting.
+This project is a mobile-first application to track and analyze monthly credit card spending for family members. It uses a Flask backend with an Angular frontend styled with Tailwind CSS. Transactions are parsed from uploaded PDF statements and organized with tags for flexible reporting.
 
 ## Development Setup
 
