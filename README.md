@@ -7,6 +7,11 @@ This project is a mobile-first application to track and analyze monthly credit c
 1. Install Python dependencies:
    ```bash
    pip install -r backend/requirements.txt
+   ```
+2. Upgrade the database:
+   ```bash
+   flask --app backend/app/main.py db upgrade
+   ```
 3. Run the application:
 
    ```bash
