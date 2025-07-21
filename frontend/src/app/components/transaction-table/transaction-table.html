@@ -1,0 +1,42 @@
+<div class="table-responsive">
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Cardholder</th>
+        <th class="text-end">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let tx of transactions; let i = index">
+        <tr (click)="tx.components && toggle(i)" [class.table-active]="expanded[i]">
+          <td>{{ tx.transaction_date }}</td>
+          <td>{{ tx.description }}</td>
+          <td>{{ tx.cardholder_name }}</td>
+          <td class="text-end">{{ tx.total_amount | currency }}</td>
+        </tr>
+        <tr *ngIf="tx.components && expanded[i]">
+          <td colspan="4" class="p-0">
+            <table class="table mb-0">
+              <thead>
+                <tr>
+                  <th>Label</th>
+                  <th>Amount</th>
+                  <th>VAT</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let c of tx.components">
+                  <td>{{ c.label }}</td>
+                  <td>{{ c.amount | currency }}</td>
+                  <td>{{ c.vat | currency }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>
