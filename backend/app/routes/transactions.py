@@ -3,7 +3,7 @@ import os
 from flask import Blueprint, request, jsonify
 
 from .. import db
-from ..models import Transaction
+from ..models import Transaction, Tag
 from ..services.pdf_parser import parse_pdf
 from ..services.cardholder_mapping import guess_cardholder
 
@@ -12,7 +12,35 @@ bp = Blueprint('transactions', __name__, url_prefix='/transactions')
 
 @bp.route('', methods=['GET'])
 def list_transactions():
-    transactions = Transaction.query.all()
+    query = Transaction.query
+
+    amount = request.args.get('amount', type=float)
+    tag = request.args.get('tag', type=int)
+    cardholder = request.args.get('cardholder', type=int)
+    desc = request.args.get('desc')
+    start = request.args.get('start')
+    end = request.args.get('end')
+
+    if amount is not None:
+        query = query.filter(Transaction.amount == amount)
+
+    if cardholder:
+        query = query.filter(Transaction.cardholder_id == cardholder)
+
+    if desc:
+        query = query.filter(Transaction.description.ilike(f"%{desc}%"))
+
+    if start:
+        query = query.filter(Transaction.date >= date.fromisoformat(start))
+
+    if end:
+        query = query.filter(Transaction.date <= date.fromisoformat(end))
+
+    if tag:
+        query = query.join(Transaction.tags).filter(Tag.id == tag)
+
+    transactions = query.all()
+
     data = [
         {
             'id': t.id,

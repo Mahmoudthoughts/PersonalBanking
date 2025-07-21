@@ -1,23 +1,48 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule, FormsModule],
   templateUrl: './transactions.html',
   styleUrl: './transactions.scss'
 })
 export class Transactions implements OnInit {
   transactions: any[] = [];
+  filters = {
+    amount: '',
+    tag: '',
+    cardholder: '',
+    desc: '',
+    start: '',
+    end: ''
+  };
   allTransactions: any[] = [];
+
 
   constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  load() {
+    let params = new HttpParams();
+    for (const [key, value] of Object.entries(this.filters)) {
+      if (value) {
+        params = params.set(key, value as string);
+      }
+    }
+    this.http
+      .get<any[]>(`${environment.apiUrl}/transactions`, { params })
+      .subscribe(res => {
+        this.transactions = res;
+      });
     this.http.get<any[]>(`${environment.apiUrl}/transactions`).subscribe(res => {
       this.allTransactions = res;
       this.applyFilters();
