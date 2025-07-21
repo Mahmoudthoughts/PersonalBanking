@@ -1,1 +1,35 @@
-<p>tags works!</p>
+<div class="container mt-4">
+  <h2>Tags</h2>
+  <button class="btn btn-primary mb-2" (click)="open()">Add Tag</button>
+  <app-tag-tree [tags]="tags" [(selected)]="selected" (edit)="open($event)" (remove)="remove($event)"></app-tag-tree>
+</div>
+
+<div class="modal fade show" tabindex="-1" [ngStyle]="{display: showModal ? 'block' : 'none'}" *ngIf="showModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ editTag ? 'Edit Tag' : 'Add Tag' }}</h5>
+        <button type="button" class="btn-close" (click)="showModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form" class="mb-0">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input class="form-control" formControlName="name" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Parent</label>
+            <select class="form-select" formControlName="parent_id">
+              <option value="">-- none --</option>
+              <option *ngFor="let t of flatTags" [value]="t.id">{{ t.name }}</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="showModal = false">Cancel</button>
+        <button class="btn btn-primary" (click)="save()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
