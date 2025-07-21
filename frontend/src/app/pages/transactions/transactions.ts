@@ -62,7 +62,7 @@ export class Transactions implements OnInit {
     }
 
     if (params['month']) {
-      filtered = filtered.filter(t => (t.date as string).startsWith(params['month']));
+      filtered = filtered.filter(t => (t.transaction_date as string).startsWith(params['month']));
     }
 
     this.transactions = filtered;

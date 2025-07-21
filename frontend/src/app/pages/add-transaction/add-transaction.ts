@@ -16,9 +16,9 @@ export class AddTransaction {
 
   constructor(private fb: FormBuilder, private data: DataService, private router: Router) {
     this.form = this.fb.nonNullable.group({
-      date: '',
+      transaction_date: '',
       description: '',
-      amount: 0,
+      total_amount: 0,
       cardholder_id: '',
       source_file: ''
     });
