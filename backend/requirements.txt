@@ -6,3 +6,12 @@ psycopg2-binary
 flask-cors
 pdfminer.six
 WeasyPrint
+Pango
+pydyf
+CFFI
+tinyhtml5
+tinycss2
+cssselect2
+Pyphen
+Pillow 
+fontTools
