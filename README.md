@@ -10,7 +10,7 @@ This project is a mobile-first application to track and analyze monthly credit c
    ```
 2. Upgrade the database:
    ```bash
-   flask --app backend/app/main.py db upgrade
+   flask --app backend.app.main db upgrade
    ```
 3. Run the application:
 
