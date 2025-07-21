@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-transactions',
@@ -15,7 +16,7 @@ export class Transactions implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.http.get<any[]>('/transactions').subscribe(res => {
+    this.http.get<any[]>(`${environment.apiUrl}/transactions`).subscribe(res => {
       this.transactions = res;
     });
   }
