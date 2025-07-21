@@ -20,6 +20,8 @@ class Transaction(db.Model):
     currency = db.Column(db.String(10))
     is_credit = db.Column(db.Boolean, default=False)
     cardholder_name = db.Column(db.String(100))
+    cardholder_id = db.Column(db.Integer, db.ForeignKey('cardholder.id'))
+    cardholder = db.relationship('Cardholder', back_populates='transactions')
     source_file = db.Column(db.String(200))
 
     tags = db.relationship("Tag", secondary=transaction_tags, backref="transactions")
