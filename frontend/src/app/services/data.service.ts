@@ -13,4 +13,10 @@ export class DataService {
   createTransaction(payload: any) {
     return this.http.post(`${environment.apiUrl}/transactions`, payload);
   }
+
+  getReport(month: string) {
+    return this.http.get(`${environment.apiUrl}/reports/${month}`, {
+      responseType: 'text'
+    });
+  }
 }

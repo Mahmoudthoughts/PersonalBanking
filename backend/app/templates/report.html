@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Report {{ month }}</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Spending Report - {{ month }}</h1>
+    <p>Total Spend: {{ '%.2f'|format(total) }}</p>
+    <h2>By Cardholder</h2>
+    <ul>
+    {% for name, amount in by_cardholder.items() %}
+        <li>{{ name }}: {{ '%.2f'|format(amount) }}</li>
+    {% endfor %}
+    </ul>
+    <h2>Transactions</h2>
+    <table>
+        <thead>
+            <tr><th>Date</th><th>Description</th><th>Amount</th><th>Cardholder</th></tr>
+        </thead>
+        <tbody>
+        {% for tx in transactions %}
+            <tr>
+                <td>{{ tx.transaction_date }}</td>
+                <td>{{ tx.description }}</td>
+                <td>{{ tx.total_amount or 0 }}</td>
+                <td>{{ tx.cardholder_name }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
