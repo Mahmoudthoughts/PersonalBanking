@@ -54,9 +54,12 @@ def upload_pdf():
     created = 0
     for data in transactions:
         transaction = Transaction(
-            date=data['date'],
+            transaction_date=data['transaction_date'],
+            posting_date=data.get('posting_date'),
             description=data['description'],
-            amount=data['amount'],
+            original_amount=data.get('original_amount'),
+            vat=data.get('vat'),
+            total_amount=data.get('total_amount'),
             cardholder_id=data.get('cardholder_id'),
             source_file=file.filename,
         )
