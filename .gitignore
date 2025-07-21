@@ -11,3 +11,4 @@ dist/
 
 # Environment files
 .env
+backend/instance/app.db
