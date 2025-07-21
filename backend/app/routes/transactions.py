@@ -1,6 +1,7 @@
 from datetime import date
 import os
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 
 from .. import db
 from ..models import Transaction, Tag
@@ -12,6 +13,7 @@ bp = Blueprint('transactions', __name__, url_prefix='/transactions')
 
 
 @bp.route('', methods=['GET'])
+@jwt_required()
 def list_transactions():
     query = Transaction.query
 
@@ -57,6 +59,7 @@ def list_transactions():
 
 
 @bp.route('', methods=['POST'])
+@jwt_required()
 def create_transaction():
     payload = request.get_json() or {}
     transaction = Transaction(
@@ -77,6 +80,7 @@ def create_transaction():
 
 
 @bp.route('/upload_pdf', methods=['POST'])
+@jwt_required()
 def upload_pdf():
     """Upload a PDF statement and create transactions."""
     file = request.files.get('file')
@@ -109,6 +113,7 @@ def upload_pdf():
 
 
 @bp.route('/<int:transaction_id>', methods=['PATCH'])
+@jwt_required()
 def update_transaction(transaction_id: int):
     """Update existing transaction fields."""
     transaction = Transaction.query.get_or_404(transaction_id)

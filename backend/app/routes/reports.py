@@ -3,6 +3,7 @@ from datetime import date
 import io
 
 from flask import Blueprint, render_template, request, send_file
+from flask_jwt_extended import jwt_required
 
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
@@ -15,6 +16,7 @@ bp = Blueprint('reports', __name__, url_prefix='/reports')
 
 
 @bp.route('/<month>', methods=['GET'])
+@jwt_required()
 def monthly_report(month: str):
     """Return an HTML or PDF spending report for the given month.
 
