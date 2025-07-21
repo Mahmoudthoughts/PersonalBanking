@@ -6,7 +6,7 @@
       <button class="btn btn-sm btn-secondary me-1" (click)="edit.emit(tag)">Edit</button>
       <button class="btn btn-sm btn-danger" (click)="remove.emit(tag)">Delete</button>
     </div>
-    <app-tag-tree *ngIf="tag.children?.length" [tags]="tag.children" [selected]="selected"
+    <app-tag-tree *ngIf="tag.children?.length" [tags]="tag.children || []" [selected]="selected"
                   (selectedChange)="selectedChange.emit($event)" (edit)="edit.emit($event)" (remove)="remove.emit($event)"></app-tag-tree>
   </li>
 </ul>

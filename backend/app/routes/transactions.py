@@ -82,7 +82,7 @@ def upload_pdf():
     if not file:
         return jsonify({'error': 'no file uploaded'}), 400
 
-    tmp_path = os.path.join('/tmp', file.filename)
+    tmp_path = os.path.join('.', file.filename)
     file.save(tmp_path)
 
     transactions = parse_pdf(tmp_path)
