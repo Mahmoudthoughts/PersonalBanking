@@ -6,6 +6,7 @@ from .. import db
 from ..models import Transaction, Tag
 from ..services.pdf_parser import parse_pdf
 from ..services.cardholder_mapping import guess_cardholder
+from ..services.tagging import assign_tags, DEFAULT_KEYWORDS
 
 bp = Blueprint('transactions', __name__, url_prefix='/transactions')
 
@@ -99,6 +100,7 @@ def upload_pdf():
             cardholder_id=cardholder_id,
             source_file=file.filename,
         )
+        transaction.tags = assign_tags(transaction, DEFAULT_KEYWORDS)
         db.session.add(transaction)
         created += 1
     db.session.commit()
