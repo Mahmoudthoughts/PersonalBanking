@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-upload',
@@ -23,7 +24,7 @@ export class Upload {
     const formData = new FormData();
     formData.append('file', file);
 
-    this.http.post('/transactions/upload_pdf', formData).subscribe(() => {
+    this.http.post(`${environment.apiUrl}/transactions/upload_pdf`, formData).subscribe(() => {
       this.router.navigate(['/transactions']);
     });
   }
