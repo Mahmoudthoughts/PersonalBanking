@@ -1,0 +1,12 @@
+<ul class="list-unstyled ms-3">
+  <li *ngFor="let tag of tags" class="mb-1">
+    <div class="d-flex align-items-center">
+      <input type="checkbox" class="form-check-input me-2" [checked]="selected.includes(tag.id)" (change)="toggle(tag.id)" />
+      <span class="flex-grow-1">{{ tag.name }}</span>
+      <button class="btn btn-sm btn-secondary me-1" (click)="edit.emit(tag)">Edit</button>
+      <button class="btn btn-sm btn-danger" (click)="remove.emit(tag)">Delete</button>
+    </div>
+    <app-tag-tree *ngIf="tag.children?.length" [tags]="tag.children" [selected]="selected"
+                  (selectedChange)="selectedChange.emit($event)" (edit)="edit.emit($event)" (remove)="remove.emit($event)"></app-tag-tree>
+  </li>
+</ul>
