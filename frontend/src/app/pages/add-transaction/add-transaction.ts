@@ -19,7 +19,8 @@ export class AddTransaction {
       date: '',
       description: '',
       amount: 0,
-      cardholder_id: ''
+      cardholder_id: '',
+      source_file: ''
     });
   }
 
