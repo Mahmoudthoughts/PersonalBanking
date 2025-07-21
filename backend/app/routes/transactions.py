@@ -33,6 +33,7 @@ def create_transaction():
         description=payload['description'],
         amount=payload['amount'],
         cardholder_id=payload.get('cardholder_id'),
+        source_file=payload.get('source_file'),
     )
     db.session.add(transaction)
     db.session.commit()
