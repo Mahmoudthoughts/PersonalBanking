@@ -43,3 +43,5 @@ Thumbs.db
 
 # Ignore binary assets
 public/favicon.ico
+backend/*/__pycache__/*
+backend/*/*/__pycache__/*
