@@ -1,7 +1,7 @@
 
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 
 from .. import db
 from ..models import User
@@ -22,6 +22,7 @@ def login():
 
 
 @bp.route('/auth/register', methods=['POST'])
+@jwt_required()
 def register():
     """Register a new user."""
     payload = request.get_json() or {}

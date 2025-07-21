@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 
 from .. import db
 from ..models import Tag
@@ -7,6 +8,7 @@ bp = Blueprint('tags', __name__, url_prefix='/tags')
 
 
 @bp.route('', methods=['GET'])
+@jwt_required()
 def list_tags():
     tags = Tag.query.all()
     return jsonify([
@@ -16,6 +18,7 @@ def list_tags():
 
 
 @bp.route('', methods=['POST'])
+@jwt_required()
 def create_tag():
     payload = request.get_json() or {}
     tag = Tag(name=payload['name'], parent_id=payload.get('parent_id'))
@@ -25,6 +28,7 @@ def create_tag():
 
 
 @bp.route('/<int:tag_id>', methods=['PATCH'])
+@jwt_required()
 def update_tag(tag_id: int):
     """Update an existing tag."""
     tag = Tag.query.get_or_404(tag_id)
@@ -38,6 +42,7 @@ def update_tag(tag_id: int):
 
 
 @bp.route('/<int:tag_id>', methods=['DELETE'])
+@jwt_required()
 def delete_tag(tag_id: int):
     """Remove a tag."""
     tag = Tag.query.get_or_404(tag_id)
