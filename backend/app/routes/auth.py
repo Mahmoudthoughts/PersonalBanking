@@ -16,7 +16,11 @@ def login():
     data = request.get_json() or {}
     user = User.query.filter_by(email=data.get('email')).first()
     if user and check_password_hash(user.password, data.get('password', '')):
-        token = create_access_token(identity=user.id)
+        # ``flask_jwt_extended`` expects the subject claim to be a string.
+        # Using an integer ID directly can trigger "Subject must be a string"
+        # errors when the token is decoded. Cast the user ID to ``str`` to
+        # ensure compatibility.
+        token = create_access_token(identity=str(user.id))
         return jsonify({'access_token': token}), 200
     return jsonify({'error': 'invalid credentials'}), 401
 
