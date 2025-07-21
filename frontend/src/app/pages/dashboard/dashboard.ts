@@ -20,13 +20,13 @@ export class Dashboard implements OnInit {
       const monthTotals: { [key: string]: number } = {};
 
       for (const tx of transactions as any[]) {
-        const month = (tx.date as string).slice(0, 7);
-        monthTotals[month] = (monthTotals[month] || 0) + tx.amount;
+        const month = (tx.transaction_date as string).slice(0, 7);
+        monthTotals[month] = (monthTotals[month] || 0) + tx.total_amount;
 
         const cat = (tx.tags && tx.tags.length)
           ? tx.tags[0].name
           : 'Uncategorized';
-        categoryTotals[cat] = (categoryTotals[cat] || 0) + tx.amount;
+        categoryTotals[cat] = (categoryTotals[cat] || 0) + tx.total_amount;
       }
 
       this.renderCategoryChart(categoryTotals);

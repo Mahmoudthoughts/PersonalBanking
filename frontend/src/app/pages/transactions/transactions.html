@@ -28,15 +28,15 @@
       <tr>
         <th>Date</th>
         <th>Description</th>
-        <th>Amount</th>
+        <th>Total Amount</th>
         <th>Cardholder</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let t of transactions">
-        <td>{{ t.date }}</td>
+        <td>{{ t.transaction_date }}</td>
         <td>{{ t.description }}</td>
-        <td>{{ t.amount }}</td>
+        <td>{{ t.total_amount }}</td>
         <td>{{ t.cardholder_id }}</td>
       </tr>
     </tbody>

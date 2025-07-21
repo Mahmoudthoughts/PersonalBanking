@@ -1,6 +1,7 @@
 from datetime import date
 import os
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 
 from .. import db
 from ..models import Transaction, Tag
@@ -12,6 +13,7 @@ bp = Blueprint('transactions', __name__, url_prefix='/transactions')
 
 
 @bp.route('', methods=['GET'])
+@jwt_required()
 def list_transactions():
     query = Transaction.query
 
@@ -23,7 +25,7 @@ def list_transactions():
     end = request.args.get('end')
 
     if amount is not None:
-        query = query.filter(Transaction.amount == amount)
+        query = query.filter(Transaction.total_amount == amount)
 
     if cardholder:
         query = query.filter(Transaction.cardholder_id == cardholder)
@@ -32,10 +34,10 @@ def list_transactions():
         query = query.filter(Transaction.description.ilike(f"%{desc}%"))
 
     if start:
-        query = query.filter(Transaction.date >= date.fromisoformat(start))
+        query = query.filter(Transaction.transaction_date >= date.fromisoformat(start))
 
     if end:
-        query = query.filter(Transaction.date <= date.fromisoformat(end))
+        query = query.filter(Transaction.transaction_date <= date.fromisoformat(end))
 
     if tag:
         query = query.join(Transaction.tags).filter(Tag.id == tag)
@@ -57,6 +59,7 @@ def list_transactions():
 
 
 @bp.route('', methods=['POST'])
+@jwt_required()
 def create_transaction():
     payload = request.get_json() or {}
     transaction = Transaction(
@@ -77,6 +80,7 @@ def create_transaction():
 
 
 @bp.route('/upload_pdf', methods=['POST'])
+@jwt_required()
 def upload_pdf():
     """Upload a PDF statement and create transactions."""
     file = request.files.get('file')
@@ -109,6 +113,7 @@ def upload_pdf():
 
 
 @bp.route('/<int:transaction_id>', methods=['PATCH'])
+@jwt_required()
 def update_transaction(transaction_id: int):
     """Update existing transaction fields."""
     transaction = Transaction.query.get_or_404(transaction_id)

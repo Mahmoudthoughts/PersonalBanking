@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { tap } from 'rxjs/operators';
@@ -24,7 +24,8 @@ export class AuthService {
   register(data: { name?: string; username?: string; email: string; password: string }) {
     return this.http.post<{id: number}>(
       `${environment.apiUrl}/auth/register`,
-      data
+      data,
+      this.authHeaders
     );
   }
 
@@ -37,5 +38,10 @@ export class AuthService {
 
   get token(): string | null {
     return localStorage.getItem(this.tokenKey);
+  }
+
+  get authHeaders() {
+    const token = this.token;
+    return token ? { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) } : {};
   }
 }
