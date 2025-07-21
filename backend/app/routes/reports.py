@@ -3,7 +3,10 @@ from datetime import date
 import io
 
 from flask import Blueprint, render_template, request, send_file
-from WeasyPrint import HTML
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import colors
 
 from ..models import Transaction
 
@@ -46,9 +49,35 @@ def monthly_report(month: str):
     )
 
     if request.args.get('format') == 'pdf':
-        pdf_bytes = HTML(string=html).write_pdf()
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        styles = getSampleStyleSheet()
+        story = []
+        story.append(Paragraph(f"Spending Report - {start.strftime('%B %Y')}", styles['Title']))
+        story.append(Paragraph(f"Total Spend: {total:.2f}", styles['Normal']))
+        story.append(Spacer(1, 12))
+        story.append(Paragraph('By Cardholder', styles['Heading2']))
+        for name, amount in by_cardholder.items():
+            story.append(Paragraph(f"{name}: {amount:.2f}", styles['Normal']))
+        story.append(Spacer(1, 12))
+        data = [['Date', 'Description', 'Amount', 'Cardholder']]
+        for t in transactions:
+            data.append([
+                str(t.transaction_date),
+                t.description,
+                str(t.total_amount or 0),
+                t.cardholder_name
+            ])
+        table = Table(data, repeatRows=1)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
+        story.append(table)
+        doc.build(story)
+        buffer.seek(0)
         return send_file(
-            io.BytesIO(pdf_bytes),
+            buffer,
             mimetype='application/pdf',
             download_name=f'report-{month}.pdf'
         )
