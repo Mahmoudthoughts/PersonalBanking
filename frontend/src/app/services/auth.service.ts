@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { tap } from 'rxjs/operators';
 
@@ -7,7 +8,7 @@ import { tap } from 'rxjs/operators';
 export class AuthService {
   private tokenKey = 'jwt_token';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   login(email: string, password: string) {
     return this.http.post<{access_token: string}>(
@@ -29,5 +30,10 @@ export class AuthService {
 
   get token(): string | null {
     return localStorage.getItem(this.tokenKey);
+  }
+
+  logout(): void {
+    localStorage.clear();
+    this.router.navigate(['/login']);
   }
 }
