@@ -5,6 +5,7 @@ from flask import Blueprint, request, jsonify
 from .. import db
 from ..models import Transaction
 from ..services.pdf_parser import parse_pdf
+from ..services.cardholder_mapping import guess_cardholder
 
 bp = Blueprint('transactions', __name__, url_prefix='/transactions')
 
@@ -15,9 +16,10 @@ def list_transactions():
     data = [
         {
             'id': t.id,
-            'date': t.date.isoformat(),
+            'transaction_date': t.transaction_date.isoformat(),
+            'posting_date': t.posting_date.isoformat() if t.posting_date else None,
             'description': t.description,
-            'amount': float(t.amount),
+            'total_amount': float(t.total_amount) if t.total_amount is not None else None,
             'cardholder_id': t.cardholder_id,
         }
         for t in transactions
@@ -29,9 +31,14 @@ def list_transactions():
 def create_transaction():
     payload = request.get_json() or {}
     transaction = Transaction(
-        date=date.fromisoformat(payload['date']),
+        transaction_date=date.fromisoformat(payload['transaction_date']),
+        posting_date=date.fromisoformat(payload['posting_date']) if payload.get('posting_date') else None,
         description=payload['description'],
-        amount=payload['amount'],
+        original_amount=payload.get('original_amount'),
+        vat=payload.get('vat'),
+        total_amount=payload.get('total_amount'),
+        currency=payload.get('currency'),
+        is_credit=payload.get('is_credit', False),
         cardholder_id=payload.get('cardholder_id'),
         source_file=payload.get('source_file'),
     )
@@ -53,11 +60,15 @@ def upload_pdf():
     transactions = parse_pdf(tmp_path)
     created = 0
     for data in transactions:
+        cardholder_id = guess_cardholder(data.get('description', ''), file.filename)
         transaction = Transaction(
-            date=data['transaction_date'],
+            transaction_date=data['transaction_date'],
+            posting_date=data.get('posting_date'),
             description=data['description'],
-            amount=data['total_amount'],
-            cardholder_id=data.get('cardholder_id'),
+            original_amount=data.get('original_amount'),
+            vat=data.get('vat'),
+            total_amount=data.get('total_amount'),
+            cardholder_id=cardholder_id,
             source_file=file.filename,
         )
         db.session.add(transaction)
@@ -65,3 +76,14 @@ def upload_pdf():
     db.session.commit()
 
     return jsonify({'created': created}), 201
+
+
+@bp.route('/<int:transaction_id>', methods=['PATCH'])
+def update_transaction(transaction_id: int):
+    """Update existing transaction fields."""
+    transaction = Transaction.query.get_or_404(transaction_id)
+    payload = request.get_json() or {}
+    if 'cardholder_id' in payload:
+        transaction.cardholder_id = payload['cardholder_id']
+    db.session.commit()
+    return jsonify({'id': transaction.id})
