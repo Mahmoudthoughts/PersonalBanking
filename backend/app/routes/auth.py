@@ -22,7 +22,6 @@ def login():
 
 
 @bp.route('/auth/register', methods=['POST'])
-@jwt_required()
 def register():
     """Register a new user."""
     payload = request.get_json() or {}
