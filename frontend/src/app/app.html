@@ -1,9 +1,13 @@
+
 <nav class="navbar navbar-expand navbar-light bg-light px-3">
   <a class="navbar-brand" routerLink="/">Home</a>
+<h1>Hello, {{ title() }}</h1>
+<router-outlet />
+
   <ul class="navbar-nav ms-auto">
     <li class="nav-item">
       <a class="nav-link" (click)="logout()" style="cursor: pointer">Logout</a>
     </li>
   </ul>
 </nav>
-<router-outlet />
+
