@@ -2,7 +2,7 @@ from calendar import monthrange
 from datetime import date
 import io
 
-from flask import Blueprint, render_template, request, send_file
+from flask import Blueprint, render_template, request, send_file, current_app
 from flask_jwt_extended import jwt_required
 
 from reportlab.lib.pagesizes import letter
@@ -22,6 +22,7 @@ def monthly_report(month: str):
 
     ``month`` is expected in ``YYYY-MM`` format.
     """
+    current_app.logger.info('Generating report for %s', month)
     try:
         start = date.fromisoformat(f"{month}-01")
     except ValueError:
@@ -52,6 +53,7 @@ def monthly_report(month: str):
     )
 
     if request.args.get('format') == 'pdf':
+        current_app.logger.debug('Rendering PDF report for %s', month)
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter)
         styles = getSampleStyleSheet()
@@ -79,10 +81,12 @@ def monthly_report(month: str):
         story.append(table)
         doc.build(story)
         buffer.seek(0)
-        return send_file(
+        response = send_file(
             buffer,
             mimetype='application/pdf',
             download_name=f'report-{month}.pdf'
         )
+        return response
 
+    current_app.logger.debug('Returning HTML report for %s', month)
     return html

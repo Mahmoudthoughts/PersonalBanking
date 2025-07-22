@@ -18,6 +18,9 @@ This project is a mobile-first application to track and analyze monthly credit c
    python backend/run.py
    ```
 
+Logging is configured via ``setup_logging`` to write rotating logs to
+``app.log``. Set the ``LOG_LEVEL`` environment variable to control verbosity.
+
 
 Basic API endpoints are available once the server is running:
 
