@@ -1,3 +1,11 @@
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table tbody tr {
+  cursor: pointer;
+}
+
 .table-active {
-  @apply bg-gray-100;
+  background-color: #f8f9fa;
 }

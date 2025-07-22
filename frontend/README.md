@@ -2,10 +2,6 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.1.
 
-## Styling
-
-This frontend uses [Tailwind CSS](https://tailwindcss.com/) for utility-first styling. Global Tailwind directives are configured in `src/styles.scss`.
-
 ## Development server
 
 To start a local development server, run:
