@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Dict, Iterable, List, Union
 import re
+import logging
 
 from ..models import Tag
 
@@ -39,6 +40,7 @@ def assign_tags(transaction, keywords: Dict[Union[int, str], Iterable[str]] | No
 
     keywords = keywords or DEFAULT_KEYWORDS
     description = (transaction.description or "").lower()
+    logging.debug('Assigning tags for description: %s', description)
     matched: List[Tag] = []
 
     for tag_key, patterns in keywords.items():
@@ -53,6 +55,9 @@ def assign_tags(transaction, keywords: Dict[Union[int, str], Iterable[str]] | No
 
             if tag and tag not in matched:
                 matched.append(tag)
+                logging.debug('Matched tag %s', tag.name)
                 break
 
+    if not matched:
+        logging.info('No tags matched for description: %s', description)
     return matched

@@ -1,5 +1,5 @@
 from datetime import date
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
 
 from .. import db
@@ -16,6 +16,7 @@ bp = Blueprint('transactions', __name__, url_prefix='/transactions')
 @bp.route('', methods=['GET'])
 @jwt_required()
 def list_transactions():
+    current_app.logger.debug('Listing transactions with args %s', request.args)
     query = Transaction.query
 
     amount = request.args.get('amount', type=float)
@@ -44,6 +45,7 @@ def list_transactions():
         query = query.join(Transaction.tags).filter(Tag.id == tag)
 
     transactions = query.all()
+    current_app.logger.debug('Fetched %d transactions', len(transactions))
 
     data = [
         {
@@ -56,6 +58,7 @@ def list_transactions():
         }
         for t in transactions
     ]
+    current_app.logger.info('Returning %d transactions', len(data))
     return jsonify(data)
 
 
@@ -63,6 +66,7 @@ def list_transactions():
 @jwt_required()
 def create_transaction():
     payload = request.get_json() or {}
+    current_app.logger.debug('Creating transaction with payload %s', payload)
     transaction = Transaction(
         transaction_date=date.fromisoformat(payload['transaction_date']),
         posting_date=date.fromisoformat(payload['posting_date']) if payload.get('posting_date') else None,
@@ -77,6 +81,7 @@ def create_transaction():
     )
     db.session.add(transaction)
     db.session.commit()
+    current_app.logger.info('Created transaction id=%s', transaction.id)
     return jsonify({'id': transaction.id}), 201
 
 
@@ -85,6 +90,7 @@ def create_transaction():
 def upload_pdf():
     """Upload a PDF statement and create transactions."""
     file = request.files.get('file')
+    current_app.logger.info('PDF upload received: %s', file.filename if file else None)
     if not file:
         return jsonify({'error': 'no file uploaded'}), 400
 
@@ -93,6 +99,7 @@ def upload_pdf():
         tmp_path = tmp.name
 
     transactions = parse_pdf(tmp_path)
+    current_app.logger.debug('Parsed %d transactions from PDF', len(transactions))
     created = 0
     for data in transactions:
         cardholder_id = guess_cardholder(data.get('description', ''), file.filename)
@@ -110,7 +117,7 @@ def upload_pdf():
         db.session.add(transaction)
         created += 1
     db.session.commit()
-
+    current_app.logger.info('Created %d transactions from PDF %s', created, file.filename)
     return jsonify({'created': created}), 201
 
 
@@ -118,9 +125,11 @@ def upload_pdf():
 @jwt_required()
 def update_transaction(transaction_id: int):
     """Update existing transaction fields."""
+    current_app.logger.debug('Updating transaction %s', transaction_id)
     transaction = Transaction.query.get_or_404(transaction_id)
     payload = request.get_json() or {}
     if 'cardholder_id' in payload:
         transaction.cardholder_id = payload['cardholder_id']
     db.session.commit()
+    current_app.logger.info('Updated transaction id=%s', transaction.id)
     return jsonify({'id': transaction.id})

@@ -8,6 +8,7 @@ import re
 from typing import List, Optional, Dict, Any
 
 from pdfminer.high_level import extract_text
+import logging
 
 
 DATE_RE = re.compile(r"(\d{2}/\d{2}/\d{4})")
@@ -39,6 +40,7 @@ def _parse_start_line(line: str) -> Optional[Dict[str, Any]]:
         re.IGNORECASE,
     )
     if not m:
+        logging.debug('No transaction match in line: %s', line)
         return None
 
     body = m.group("body")
@@ -53,6 +55,7 @@ def _parse_start_line(line: str) -> Optional[Dict[str, Any]]:
         original_amount = vat = total_amount = None
         description_part = body.strip()
 
+    logging.debug('Parsed start line %s', line)
     return {
         "transaction_date": datetime.strptime(m.group("transaction_date"), "%d/%m/%Y").date(),
         "posting_date": datetime.strptime(m.group("posting_date"), "%d/%m/%Y").date(),
@@ -68,6 +71,7 @@ def _parse_component_line(line: str) -> Optional[Dict[str, Any]]:
 
     numbers = AMOUNT_RE.findall(line)
     if not numbers:
+        logging.debug('No amounts found in line: %s', line)
         return None
 
     if len(numbers) >= 2:
@@ -79,6 +83,7 @@ def _parse_component_line(line: str) -> Optional[Dict[str, Any]]:
         vat = None
         label = line.rsplit(numbers[-1], 1)[0].strip()
 
+    logging.debug('Parsed component line %s', line)
     return {"label": label, "amount": amount, "vat": vat}
 
 
@@ -96,6 +101,7 @@ def parse_pdf(file_path: str) -> List[Dict[str, Any]]:
         A list of transaction dictionaries matching the expected schema.
     """
 
+    logging.info('Parsing PDF %s', file_path)
     try:
         text = extract_text(file_path)
         lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
@@ -126,9 +132,10 @@ def parse_pdf(file_path: str) -> List[Dict[str, Any]]:
             current["description"] = " ".join(current.pop("_desc_lines"))
             transactions.append(current)
 
+        logging.info('Parsed %d transactions', len(transactions))
         return transactions
     finally:
         try:
             os.remove(file_path)
         except OSError:
-            pass
+            logging.error('Failed to remove temporary file %s', file_path)
