@@ -1,0 +1,11 @@
+<div class="container mt-4">
+  <h2>Import Transactions from JSON</h2>
+  <div class="mb-3">
+    <input type="file" (change)="onFile($event)" />
+  </div>
+  <div class="mb-3">
+    <textarea class="form-control" rows="10" [(ngModel)]="jsonText" (input)="parse()"></textarea>
+  </div>
+  <button class="btn btn-primary" (click)="submit()" [disabled]="!parsed.length">Submit</button>
+  <pre class="mt-3" *ngIf="parsed.length">{{ parsed | json }}</pre>
+</div>

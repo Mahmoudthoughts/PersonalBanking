@@ -19,6 +19,8 @@ export class AddTransaction {
       transaction_date: '',
       description: '',
       total_amount: 0,
+      card_number: '',
+      cardholder_name: '',
       cardholder_id: '',
       source_file: ''
     });
