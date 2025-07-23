@@ -13,6 +13,8 @@ import logging
 
 DATE_RE = re.compile(r"(\d{2}/\d{2}/\d{4})")
 AMOUNT_RE = re.compile(r"[-+]?\d+(?:,\d{3})*(?:\.\d+)?")
+CARD_NUMBER_RE = re.compile(r"(\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4})")
+CARDHOLDER_RE = re.compile(r"cardholder\s*name[:\s]*([A-Za-z '\-]+)", re.IGNORECASE)
 
 
 def _parse_amount(value: str) -> float:
@@ -108,8 +110,19 @@ def parse_pdf(file_path: str) -> List[Dict[str, Any]]:
 
         transactions: List[Dict[str, Any]] = []
         current: Optional[Dict[str, Any]] = None
+        cardholder_name: Optional[str] = None
+        card_number: Optional[str] = None
 
         for line in lines:
+            m_num = CARD_NUMBER_RE.search(line)
+            if m_num:
+                card_number = m_num.group(1).replace(' ', '').replace('-', '')
+                continue
+            m_name = CARDHOLDER_RE.search(line)
+            if m_name:
+                cardholder_name = m_name.group(1).strip()
+                continue
+
             start = _parse_start_line(line)
             if start:
                 if current:
@@ -118,6 +131,8 @@ def parse_pdf(file_path: str) -> List[Dict[str, Any]]:
                 current = start
                 current["components"] = []
                 current["_desc_lines"] = [start.pop("description")]
+                current["cardholder_name"] = cardholder_name
+                current["card_number"] = card_number
                 continue
 
             if not current:

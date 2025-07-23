@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { Upload } from './pages/upload/upload';
+import { ImportJson } from './pages/import-json/import-json';
 import { Transactions } from './pages/transactions/transactions';
 import { AddTransaction } from './pages/add-transaction/add-transaction';
 import { Tags } from './pages/tags/tags';
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'register', component: Register },
   { path: 'dashboard', component: Dashboard },
   { path: 'upload', component: Upload },
+  { path: 'import-json', component: ImportJson },
   { path: 'transactions/new', component: AddTransaction },
   { path: 'transactions', component: Transactions },
   { path: 'tags', component: Tags },
