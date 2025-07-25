@@ -26,10 +26,11 @@
     "@angular/forms": "^20.1.0",
     "@angular/platform-browser": "^20.1.0",
     "@angular/router": "^20.1.0",
+    "@types/file-saver": "^2.0.7",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.1",
-    "ng2-charts": "^4.0.0",
     "file-saver": "^2.0.5",
+    "ng2-charts": "^4.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
