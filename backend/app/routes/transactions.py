@@ -53,8 +53,14 @@ def list_transactions():
             'transaction_date': t.transaction_date.isoformat(),
             'posting_date': t.posting_date.isoformat() if t.posting_date else None,
             'description': t.description,
+            'original_amount': float(t.original_amount) if t.original_amount is not None else None,
+            'vat': float(t.vat) if t.vat is not None else None,
             'total_amount': float(t.total_amount) if t.total_amount is not None else None,
+            'currency': t.currency,
+            'is_credit': t.is_credit,
             'cardholder_id': t.cardholder_id,
+            'cardholder_name': t.cardholder_name,
+            'card_number': t.card_number,
         }
         for t in transactions
     ]
@@ -76,13 +82,33 @@ def create_transaction():
         total_amount=payload.get('total_amount'),
         currency=payload.get('currency'),
         is_credit=payload.get('is_credit', False),
+        card_number=payload.get('card_number'),
         cardholder_id=payload.get('cardholder_id'),
+        cardholder_name=payload.get('cardholder_name'),
         source_file=payload.get('source_file'),
     )
     db.session.add(transaction)
     db.session.commit()
     current_app.logger.info('Created transaction id=%s', transaction.id)
     return jsonify({'id': transaction.id}), 201
+
+
+@bp.route('/parse_pdf', methods=['POST'])
+@jwt_required()
+def parse_pdf_endpoint():
+    """Return parsed transactions from an uploaded PDF without saving."""
+    file = request.files.get('file')
+    current_app.logger.info('PDF parse request received: %s', file.filename if file else None)
+    if not file:
+        return jsonify({'error': 'no file uploaded'}), 400
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp:
+        file.save(tmp.name)
+        tmp_path = tmp.name
+
+    data = parse_pdf(tmp_path)
+    current_app.logger.debug('Parsed %d transactions from PDF', len(data))
+    return jsonify(data)
 
 
 @bp.route('/upload_pdf', methods=['POST'])
@@ -110,6 +136,8 @@ def upload_pdf():
             original_amount=data.get('original_amount'),
             vat=data.get('vat'),
             total_amount=data.get('total_amount'),
+            card_number=data.get('card_number'),
+            cardholder_name=data.get('cardholder_name'),
             cardholder_id=cardholder_id,
             source_file=file.filename,
         )
@@ -118,6 +146,37 @@ def upload_pdf():
         created += 1
     db.session.commit()
     current_app.logger.info('Created %d transactions from PDF %s', created, file.filename)
+    return jsonify({'created': created}), 201
+
+
+@bp.route('/batch', methods=['POST'])
+@jwt_required()
+def batch_create():
+    """Create multiple transactions from JSON payload."""
+    payload = request.get_json() or []
+    if not isinstance(payload, list):
+        return jsonify({'error': 'invalid payload'}), 400
+    created = 0
+    for item in payload:
+        try:
+            transaction = Transaction(
+                transaction_date=date.fromisoformat(item['transaction_date']),
+                posting_date=date.fromisoformat(item['posting_date']) if item.get('posting_date') else None,
+                description=item['description'],
+                original_amount=item.get('original_amount'),
+                vat=item.get('vat'),
+                total_amount=item.get('total_amount'),
+                card_number=item.get('card_number'),
+                cardholder_name=item.get('cardholder_name'),
+                source_file=item.get('source_file'),
+            )
+        except Exception as exc:
+            current_app.logger.error('Failed to parse item %s: %s', item, exc)
+            continue
+        db.session.add(transaction)
+        created += 1
+    db.session.commit()
+    current_app.logger.info('Batch created %d transactions', created)
     return jsonify({'created': created}), 201
 
 
