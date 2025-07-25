@@ -20,7 +20,7 @@
     <h2>Transactions</h2>
     <table>
         <thead>
-            <tr><th>Date</th><th>Description</th><th>Amount</th><th>Cardholder</th></tr>
+            <tr><th>Date</th><th>Description</th><th>Amount</th><th>Cardholder</th><th>Card Number</th></tr>
         </thead>
         <tbody>
         {% for tx in transactions %}
@@ -29,6 +29,7 @@
                 <td>{{ tx.description }}</td>
                 <td>{{ tx.total_amount or 0 }}</td>
                 <td>{{ tx.cardholder_name }}</td>
+                <td>{{ tx.card_number }}</td>
             </tr>
         {% endfor %}
         </tbody>

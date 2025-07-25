@@ -65,13 +65,14 @@ def monthly_report(month: str):
         for name, amount in by_cardholder.items():
             story.append(Paragraph(f"{name}: {amount:.2f}", styles['Normal']))
         story.append(Spacer(1, 12))
-        data = [['Date', 'Description', 'Amount', 'Cardholder']]
+        data = [['Date', 'Description', 'Amount', 'Cardholder', 'Card Number']]
         for t in transactions:
             data.append([
                 str(t.transaction_date),
                 t.description,
                 str(t.total_amount or 0),
-                t.cardholder_name
+                t.cardholder_name,
+                t.card_number or ''
             ])
         table = Table(data, repeatRows=1)
         table.setStyle(TableStyle([
