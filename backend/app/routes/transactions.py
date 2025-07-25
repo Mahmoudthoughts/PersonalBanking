@@ -56,6 +56,8 @@ def list_transactions():
             'original_amount': float(t.original_amount) if t.original_amount is not None else None,
             'vat': float(t.vat) if t.vat is not None else None,
             'total_amount': float(t.total_amount) if t.total_amount is not None else None,
+            'currency': t.currency,
+            'is_credit': t.is_credit,
             'cardholder_id': t.cardholder_id,
             'cardholder_name': t.cardholder_name,
             'card_number': t.card_number,
