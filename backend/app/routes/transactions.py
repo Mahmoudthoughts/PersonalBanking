@@ -54,6 +54,7 @@ def list_transactions():
             'posting_date': t.posting_date.isoformat() if t.posting_date else None,
             'description': t.description,
             'total_amount': float(t.total_amount) if t.total_amount is not None else None,
+            'card_number': t.card_number,
             'cardholder_id': t.cardholder_id,
         }
         for t in transactions
@@ -77,6 +78,7 @@ def create_transaction():
         currency=payload.get('currency'),
         is_credit=payload.get('is_credit', False),
         cardholder_id=payload.get('cardholder_id'),
+        card_number=payload.get('card_number'),
         source_file=payload.get('source_file'),
     )
     db.session.add(transaction)
@@ -110,6 +112,7 @@ def upload_pdf():
             original_amount=data.get('original_amount'),
             vat=data.get('vat'),
             total_amount=data.get('total_amount'),
+            card_number=data.get('card_number'),
             cardholder_id=cardholder_id,
             source_file=file.filename,
         )
@@ -130,6 +133,8 @@ def update_transaction(transaction_id: int):
     payload = request.get_json() or {}
     if 'cardholder_id' in payload:
         transaction.cardholder_id = payload['cardholder_id']
+    if 'card_number' in payload:
+        transaction.card_number = payload['card_number']
     db.session.commit()
     current_app.logger.info('Updated transaction id=%s', transaction.id)
     return jsonify({'id': transaction.id})
