@@ -28,16 +28,26 @@
       <tr>
         <th>Date</th>
         <th>Description</th>
-        <th>Total Amount</th>
+        <th>Original</th>
+        <th>VAT</th>
+        <th>Total</th>
+        <th>Currency</th>
+        <th>Credit?</th>
         <th>Cardholder</th>
+        <th>Card #</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let t of transactions">
         <td>{{ t.transaction_date }}</td>
         <td>{{ t.description }}</td>
+        <td>{{ t.original_amount }}</td>
+        <td>{{ t.vat }}</td>
         <td>{{ t.total_amount }}</td>
-        <td>{{ t.cardholder_id }}</td>
+        <td>{{ t.currency }}</td>
+        <td>{{ t.is_credit ? 'Yes' : 'No' }}</td>
+        <td>{{ t.cardholder_name }}</td>
+        <td>{{ t.card_number }}</td>
       </tr>
     </tbody>
   </table>
