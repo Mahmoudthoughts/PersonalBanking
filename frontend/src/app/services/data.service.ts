@@ -19,6 +19,14 @@ export class DataService {
     return this.http.post(`${environment.apiUrl}/transactions`, payload, this.headers);
   }
 
+  parsePdf(formData: FormData) {
+    return this.http.post<any[]>(`${environment.apiUrl}/transactions/parse_pdf`, formData, this.headers);
+  }
+
+  batchCreateTransactions(payload: any[]) {
+    return this.http.post(`${environment.apiUrl}/transactions/batch`, payload, this.headers);
+  }
+
   getReport(month: string) {
     return this.http.get(`${environment.apiUrl}/reports/${month}`, {
       responseType: 'text',

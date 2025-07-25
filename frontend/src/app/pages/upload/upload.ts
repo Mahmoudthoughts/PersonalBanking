@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { AuthService } from '../../services/auth.service';
+import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { environment } from '../../../environments/environment';
+import { DataService } from '../../services/data.service';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-upload',
@@ -13,7 +13,8 @@ import { environment } from '../../../environments/environment';
   styleUrl: './upload.scss'
 })
 export class Upload {
-  constructor(private http: HttpClient, private router: Router, private auth: AuthService) {}
+  parsed: any[] = [];
+  constructor(private data: DataService, private router: Router) {}
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -25,8 +26,10 @@ export class Upload {
     const formData = new FormData();
     formData.append('file', file);
 
-    this.http.post(`${environment.apiUrl}/transactions/upload_pdf`, formData, this.auth.authHeaders).subscribe(() => {
-      this.router.navigate(['/transactions']);
+    this.data.parsePdf(formData).subscribe(res => {
+      this.parsed = res;
+      const blob = new Blob([JSON.stringify(res, null, 2)], { type: 'application/json' });
+      saveAs(blob, 'transactions.json');
     });
   }
 }
