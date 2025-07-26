@@ -85,7 +85,6 @@ def create_transaction():
         is_credit=payload.get('is_credit', False),
         card_number=payload.get('card_number'),
         cardholder_id=payload.get('cardholder_id'),
-        card_number=payload.get('card_number'),
         cardholder_name=payload.get('cardholder_name'),
         source_file=payload.get('source_file'),
     )
