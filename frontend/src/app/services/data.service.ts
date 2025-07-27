@@ -27,6 +27,18 @@ export class DataService {
     return this.http.post(`${environment.apiUrl}/transactions/batch`, payload, this.headers);
   }
 
+  getTransaction(id: number) {
+    return this.http.get<any>(`${environment.apiUrl}/transactions/${id}`, this.headers);
+  }
+
+  updateTransaction(id: number, payload: any) {
+    return this.http.patch(`${environment.apiUrl}/transactions/${id}`, payload, this.headers);
+  }
+
+  suggestTags(id: number) {
+    return this.http.get<any[]>(`${environment.apiUrl}/transactions/${id}/suggest-tags`, this.headers);
+  }
+
   getReport(month: string) {
     return this.http.get(`${environment.apiUrl}/reports/${month}`, {
       responseType: 'text',
