@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required
 
 from .. import db
 from ..models import Transaction, Tag
+from sqlalchemy.orm import joinedload
 import tempfile
 
 from ..services.pdf_parser import parse_pdf
@@ -181,6 +182,46 @@ def batch_create():
     return jsonify({'created': created}), 201
 
 
+@bp.route('/<int:transaction_id>', methods=['GET'])
+@jwt_required()
+def get_transaction(transaction_id: int):
+    """Return a single transaction with components and tags."""
+    current_app.logger.debug('Fetching transaction %s', transaction_id)
+    transaction = (
+        Transaction.query.options(
+            joinedload(Transaction.tags), joinedload(Transaction.components)
+        ).get_or_404(transaction_id)
+    )
+
+    data = {
+        'id': transaction.id,
+        'transaction_date': transaction.transaction_date.isoformat(),
+        'posting_date': transaction.posting_date.isoformat() if transaction.posting_date else None,
+        'description': transaction.description,
+        'original_amount': float(transaction.original_amount) if transaction.original_amount is not None else None,
+        'vat': float(transaction.vat) if transaction.vat is not None else None,
+        'total_amount': float(transaction.total_amount) if transaction.total_amount is not None else None,
+        'card_number': transaction.card_number,
+        'currency': transaction.currency,
+        'is_credit': transaction.is_credit,
+        'cardholder_id': transaction.cardholder_id,
+        'cardholder_name': transaction.cardholder_name,
+        'source_file': transaction.source_file,
+        'components': [
+            {
+                'id': c.id,
+                'label': c.label,
+                'amount': float(c.amount) if c.amount is not None else None,
+                'vat': float(c.vat) if c.vat is not None else None,
+            }
+            for c in transaction.components
+        ],
+        'tags': [{'id': t.id, 'name': t.name} for t in transaction.tags],
+    }
+
+    return jsonify(data)
+
+
 @bp.route('/<int:transaction_id>', methods=['PATCH'])
 @jwt_required()
 def update_transaction(transaction_id: int):
@@ -192,6 +233,19 @@ def update_transaction(transaction_id: int):
         transaction.cardholder_id = payload['cardholder_id']
     if 'card_number' in payload:
         transaction.card_number = payload['card_number']
+    if 'tags' in payload:
+        tags = Tag.query.filter(Tag.id.in_(payload['tags'])).all()
+        transaction.tags = tags
     db.session.commit()
     current_app.logger.info('Updated transaction id=%s', transaction.id)
     return jsonify({'id': transaction.id})
+
+
+@bp.route('/<int:transaction_id>/suggest-tags', methods=['GET'])
+@jwt_required()
+def suggest_tags(transaction_id: int):
+    """Return suggested tags for a transaction."""
+    current_app.logger.debug('Suggesting tags for transaction %s', transaction_id)
+    transaction = Transaction.query.get_or_404(transaction_id)
+    tags = assign_tags(transaction, DEFAULT_KEYWORDS)
+    return jsonify([{'id': t.id, 'name': t.name} for t in tags])

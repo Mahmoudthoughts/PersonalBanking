@@ -38,7 +38,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let t of transactions">
+      <tr *ngFor="let t of transactions" [routerLink]="['/transactions', t.id]" style="cursor: pointer;">
         <td>{{ t.transaction_date }}</td>
         <td>{{ t.description }}</td>
         <td>{{ t.original_amount }}</td>
