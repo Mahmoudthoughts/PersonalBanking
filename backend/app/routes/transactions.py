@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
 
@@ -161,8 +161,8 @@ def batch_create():
     for item in payload:
         try:
             transaction = Transaction(
-                transaction_date=date.fromisoformat(item['transaction_date']),
-                posting_date=date.fromisoformat(item['posting_date']) if item.get('posting_date') else None,
+                transaction_date=datetime.strptime(item['transaction_date'], "%d/%m/%Y").date(),
+                posting_date=datetime.strptime(item['posting_date'], "%d/%m/%Y").date() if item.get('posting_date') else None,
                 description=item['description'],
                 original_amount=item.get('original_amount'),
                 vat=item.get('vat'),

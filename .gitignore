@@ -1,7 +1,18 @@
 # Python
 __pycache__/
 *.py[cod]
-
+# Logs
+app.log*
+# Virtual environment
+venv/       
+# IDE specific
+.idea/
+# OS specific
+.DS_Store
+# Database files
+*.sqlite3
+# Backup files
+*.bak
 # Node
 node_modules/
 
