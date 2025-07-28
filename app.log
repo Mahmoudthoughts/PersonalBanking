@@ -4539,3 +4539,18 @@
 2025-07-28 01:00:48,209 INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on http://127.0.0.1:5000 [in c:\Users\mabdelghafar\source\repos\PersonalBanking\.venv\Lib\site-packages\werkzeug\_internal.py:97]
 2025-07-28 01:00:48,209 INFO: [33mPress CTRL+C to quit[0m [in c:\Users\mabdelghafar\source\repos\PersonalBanking\.venv\Lib\site-packages\werkzeug\_internal.py:97]
+2025-07-28 01:01:07,685 DEBUG: log.py:17 in setup_logging: root_logger.setLevel(log_level) [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,686 DEBUG: __init__.py:23 in create_app: CORS(app) [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,687 DEBUG: __init__.py:25 in create_app: db.init_app(app) [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,717 DEBUG: __init__.py:26 in create_app: Migrate(app, db) [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,723 DEBUG: __init__.py:27 in create_app: jwt.init_app(app) [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,724 DEBUG: __init__.py:28 in create_app: register_blueprints(app) [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,724 DEBUG: routes\__init__.py:12 in register_blueprints: app.register_blueprint(auth_bp) [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,727 DEBUG: routes\__init__.py:13 in register_blueprints: app.register_blueprint(transactions_bp) [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,739 DEBUG: routes\__init__.py:14 in register_blueprints: app.register_blueprint(tags_bp) [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,746 DEBUG: routes\__init__.py:15 in register_blueprints: app.register_blueprint(cardholders_bp) [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,748 DEBUG: routes\__init__.py:16 in register_blueprints: app.register_blueprint(reports_bp) [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,751 DEBUG: __init__.py:30 in create_app: return app [in C:\Users\mabdelghafar\source\repos\PersonalBanking\backend\app\utils\line_logger.py:18]
+2025-07-28 01:01:07,770 INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000 [in c:\Users\mabdelghafar\source\repos\PersonalBanking\.venv\Lib\site-packages\werkzeug\_internal.py:97]
+2025-07-28 01:01:07,770 INFO: [33mPress CTRL+C to quit[0m [in c:\Users\mabdelghafar\source\repos\PersonalBanking\.venv\Lib\site-packages\werkzeug\_internal.py:97]
