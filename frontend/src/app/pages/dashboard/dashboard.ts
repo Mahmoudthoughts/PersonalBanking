@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router,RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { DataService } from '../../services/data.service';
+import { AuthService } from '../../services/auth.service';
 import Chart from 'chart.js/auto';
 
 @Component({
@@ -12,9 +13,17 @@ import Chart from 'chart.js/auto';
   styleUrl: './dashboard.scss'
 })
 export class Dashboard implements OnInit {
-  constructor(private data: DataService, private router: Router) {}
+  constructor(
+    private data: DataService,
+    private router: Router,
+    private auth: AuthService
+  ) {}
 
   ngOnInit(): void {
+    if (!this.auth.token) {
+      this.router.navigate(['/']);
+      return;
+    }
     this.data.getTransactions().subscribe(transactions => {
       const categoryTotals: { [key: string]: number } = {};
       const monthTotals: { [key: string]: number } = {};
