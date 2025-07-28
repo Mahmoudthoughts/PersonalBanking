@@ -12036,3 +12036,7 @@
 2025-07-28 12:03:45,349 INFO: 127.0.0.1 - - [28/Jul/2025 12:03:45] "OPTIONS /tags HTTP/1.1" 200 - [in c:\Users\mabdelghafar\source\repos\PersonalBanking\.venv\Lib\site-packages\werkzeug\_internal.py:97]
 2025-07-28 12:03:45,610 INFO: 127.0.0.1 - - [28/Jul/2025 12:03:45] "[31m[1mGET /transactions/4 HTTP/1.1[0m" 401 - [in c:\Users\mabdelghafar\source\repos\PersonalBanking\.venv\Lib\site-packages\werkzeug\_internal.py:97]
 2025-07-28 12:03:45,666 INFO: 127.0.0.1 - - [28/Jul/2025 12:03:45] "[31m[1mGET /tags HTTP/1.1[0m" 401 - [in c:\Users\mabdelghafar\source\repos\PersonalBanking\.venv\Lib\site-packages\werkzeug\_internal.py:97]
+2025-07-28 12:06:38,682 INFO: 127.0.0.1 - - [28/Jul/2025 12:06:38] "OPTIONS /transactions/4 HTTP/1.1" 200 - [in c:\Users\mabdelghafar\source\repos\PersonalBanking\.venv\Lib\site-packages\werkzeug\_internal.py:97]
+2025-07-28 12:06:38,684 INFO: 127.0.0.1 - - [28/Jul/2025 12:06:38] "OPTIONS /tags HTTP/1.1" 200 - [in c:\Users\mabdelghafar\source\repos\PersonalBanking\.venv\Lib\site-packages\werkzeug\_internal.py:97]
+2025-07-28 12:06:38,956 INFO: 127.0.0.1 - - [28/Jul/2025 12:06:38] "[31m[1mGET /transactions/4 HTTP/1.1[0m" 401 - [in c:\Users\mabdelghafar\source\repos\PersonalBanking\.venv\Lib\site-packages\werkzeug\_internal.py:97]
+2025-07-28 12:06:39,018 INFO: 127.0.0.1 - - [28/Jul/2025 12:06:39] "[31m[1mGET /tags HTTP/1.1[0m" 401 - [in c:\Users\mabdelghafar\source\repos\PersonalBanking\.venv\Lib\site-packages\werkzeug\_internal.py:97]
