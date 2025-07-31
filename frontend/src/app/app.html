@@ -1,14 +1,32 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
   <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/dashboard">Family Credit Tracker</a>
-    <ul class="navbar-nav ms-auto">
+
+    <a class="navbar-brand" routerLink="/">Family Credit Tracker</a>
+    <ul class="navbar-nav me-auto">
       <li class="nav-item">
         <a class="nav-link" routerLink="/">Home</a>
       </li>
-      <li
-        class="nav-item"
-        *ngIf="router.url !== '/login' && router.url !== '/register'"
-      >
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/dashboard">Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/upload">Upload</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/transactions">Transactions</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/tags">Tags</a>
+      </li>
+    </ul>
+    <ul class="navbar-nav ms-auto">
+      <li class="nav-item" *ngIf="!auth.token">
+        <a class="nav-link" routerLink="/login">Login</a>
+      </li>
+      <li class="nav-item" *ngIf="!auth.token">
+        <a class="nav-link" routerLink="/register">Register</a>
+      </li>
+      <li class="nav-item" *ngIf="auth.token">
         <a class="nav-link" style="cursor: pointer" (click)="logout()">Logout</a>
       </li>
     </ul>
