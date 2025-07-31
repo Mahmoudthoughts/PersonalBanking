@@ -14,7 +14,7 @@ import { AuthService } from './services/auth.service';
 export class App {
   protected readonly title = signal('frontend');
 
-  constructor(public router: Router, private auth: AuthService) {}
+  constructor(public router: Router, public auth: AuthService) {}
 
 
   logout(): void {
