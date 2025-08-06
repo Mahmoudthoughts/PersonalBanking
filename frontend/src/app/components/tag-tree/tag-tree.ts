@@ -12,9 +12,12 @@ import { Tag } from '../../models/tag';
 export class TagTree {
   @Input() tags: Tag[] = [];
   @Input() selected: number[] = [];
+  @Input() suggestions: Tag[] = [];
   @Output() selectedChange = new EventEmitter<number[]>();
   @Output() edit = new EventEmitter<Tag>();
   @Output() remove = new EventEmitter<Tag>();
+  @Output() accept = new EventEmitter<Tag>();
+  @Output() ignore = new EventEmitter<Tag>();
 
   toggle(id: number) {
     if (this.selected.includes(id)) {
@@ -23,5 +26,13 @@ export class TagTree {
       this.selected = [...this.selected, id];
     }
     this.selectedChange.emit(this.selected);
+  }
+
+  acceptSuggestion(tag: Tag) {
+    this.accept.emit(tag);
+  }
+
+  ignoreSuggestion(tag: Tag) {
+    this.ignore.emit(tag);
   }
 }

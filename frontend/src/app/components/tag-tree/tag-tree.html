@@ -1,4 +1,12 @@
 <ul class="list-unstyled ms-3">
+  <li *ngIf="suggestions.length" class="mb-2">
+    <div class="fw-bold">Suggestions</div>
+    <div *ngFor="let s of suggestions" class="d-flex align-items-center mb-1">
+      <span class="flex-grow-1">{{ s.name }}</span>
+      <button class="btn btn-sm btn-primary me-1" (click)="acceptSuggestion(s)">Accept</button>
+      <button class="btn btn-sm btn-outline-secondary" (click)="ignoreSuggestion(s)">Ignore</button>
+    </div>
+  </li>
   <li *ngFor="let tag of tags" class="mb-1">
     <div class="d-flex align-items-center">
       <input type="checkbox" class="form-check-input me-2" [checked]="selected.includes(tag.id)" (change)="toggle(tag.id)" />
