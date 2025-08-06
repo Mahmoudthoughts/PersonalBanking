@@ -11,6 +11,7 @@ from ..services.pdf_parser import parse_pdf
 from ..services.cardholder_mapping import guess_cardholder
 from ..services.tagging import assign_tags, DEFAULT_KEYWORDS
 from ..services.import_export import export_transactions, import_transactions
+from ..services.tag_ai import tag_ai
 
 bp = Blueprint('transactions', __name__, url_prefix='/transactions')
 
@@ -19,7 +20,7 @@ bp = Blueprint('transactions', __name__, url_prefix='/transactions')
 @jwt_required()
 def list_transactions():
     current_app.logger.debug('Listing transactions with args %s', request.args)
-    query = Transaction.query
+    query = Transaction.query.options(joinedload(Transaction.tags))
 
     amount = request.args.get('amount', type=float)
     tag = request.args.get('tag', type=int)
@@ -64,10 +65,53 @@ def list_transactions():
             'cardholder_id': t.cardholder_id,
             'cardholder_name': t.cardholder_name,
             'card_number': t.card_number,
+            'tags': [
+                {
+                    'id': tag.id,
+                    'name': tag.name,
+                    'parent_id': tag.parent_id,
+                }
+                for tag in t.tags
+            ],
         }
         for t in transactions
     ]
     current_app.logger.info('Returning %d transactions', len(data))
+    return jsonify(data)
+
+
+@bp.route('/summary/daily', methods=['GET'])
+@jwt_required()
+def daily_summary():
+    """Return total transaction amounts grouped by day."""
+    tag_id = request.args.get('tag', type=int)
+    start = request.args.get('start')
+    end = request.args.get('end')
+
+    query = db.session.query(
+        Transaction.transaction_date,
+        db.func.sum(Transaction.total_amount).label('total'),
+    )
+
+    if tag_id:
+        query = query.join(Transaction.tags).filter(Tag.id == tag_id)
+    if start:
+        query = query.filter(Transaction.transaction_date >= date.fromisoformat(start))
+    if end:
+        query = query.filter(Transaction.transaction_date <= date.fromisoformat(end))
+
+    rows = (
+        query.group_by(Transaction.transaction_date)
+        .order_by(Transaction.transaction_date)
+        .all()
+    )
+    data = [
+        {
+            'date': r.transaction_date.isoformat(),
+            'total': float(r.total or 0),
+        }
+        for r in rows
+    ]
     return jsonify(data)
 
 
@@ -278,3 +322,13 @@ def suggest_tags(transaction_id: int):
     transaction = Transaction.query.get_or_404(transaction_id)
     tags = assign_tags(transaction, DEFAULT_KEYWORDS)
     return jsonify([{'id': t.id, 'name': t.name} for t in tags])
+
+
+@bp.route('/<int:transaction_id>/ai-tags', methods=['GET'])
+@jwt_required()
+def ai_tags(transaction_id: int):
+    """Return AI-ranked tag suggestions for a transaction."""
+    current_app.logger.debug('AI suggesting tags for transaction %s', transaction_id)
+    transaction = Transaction.query.get_or_404(transaction_id)
+    suggestions = tag_ai.suggest(transaction.description)
+    return jsonify(suggestions)

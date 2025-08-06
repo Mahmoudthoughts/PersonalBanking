@@ -14,19 +14,11 @@
   </div>
   <div class="mb-3">
     <label class="form-label">Tags</label>
-    <app-tag-tree [tags]="tags" [(selected)]="selected"></app-tag-tree>
+    <app-tag-tree [tags]="tags" [(selected)]="selected" [suggestions]="suggested" (accept)="applySuggested($event)" (ignore)="ignoreSuggested($event)"></app-tag-tree>
   </div>
   <div class="mb-3 d-flex">
     <input class="form-control me-2" [(ngModel)]="newTagName" placeholder="New tag name" />
     <button class="btn btn-secondary" (click)="addTag()">Add Tag</button>
-  </div>
-  <div class="mb-3" *ngIf="suggested.length">
-    <label class="form-label">Suggested Tags:</label>
-    <div>
-      <button class="btn btn-sm btn-outline-primary me-1 mb-1" *ngFor="let t of suggested" (click)="applySuggested(t)">
-        {{ t.name }}
-      </button>
-    </div>
   </div>
   <button class="btn btn-primary" (click)="save()">Save</button>
 </div>

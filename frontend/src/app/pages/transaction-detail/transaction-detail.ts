@@ -36,7 +36,7 @@ export class TransactionDetail implements OnInit {
     this.data.getTransaction(id).subscribe(tx => {
       this.transaction = tx;
       this.selected = tx.tags ? tx.tags.map((t: any) => t.id) : [];
-      this.data.suggestTags(id).subscribe(s => (this.suggested = s));
+      this.data.aiTags(id).subscribe(s => (this.suggested = s));
     });
     this.tagService.getTags().subscribe(t => (this.tags = t));
   }
@@ -53,6 +53,10 @@ export class TransactionDetail implements OnInit {
     if (!this.selected.includes(tag.id)) {
       this.selected = [...this.selected, tag.id];
     }
+  }
+
+  ignoreSuggested(tag: Tag) {
+    this.suggested = this.suggested.filter(t => t.id !== tag.id);
   }
 
   save() {

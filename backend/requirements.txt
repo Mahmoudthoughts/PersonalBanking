@@ -6,3 +6,4 @@ psycopg2-binary
 flask-cors
 pdfminer.six
 reportlab
+scikit-learn

@@ -1,14 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import Chart from 'chart.js/auto';
+
 import { DataService } from '../../services/data.service';
 import { AuthService } from '../../services/auth.service';
-import Chart from 'chart.js/auto';
+import { TagService } from '../../services/tag.service';
+import { Tag } from '../../models/tag';
+import { CalendarHeatmapComponent } from '../../components/calendar-heatmap/calendar-heatmap';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, CalendarHeatmapComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
@@ -16,27 +21,16 @@ export class Dashboard implements OnInit {
   private categoryChart: Chart | null = null;
   private monthlyChart: Chart | null = null;
 
-  private readonly allCategories: string[] = [
-    'Home supplies',
-    'Groceries',
-    'Fuel',
-    'Dining',
-    'Entertainment',
-    'Transport',
-    'Utilities',
-    'Visa/Travel',
-    'Medical',
-    'Government Services',
-    'Shopping',
-    'Food Delivery',
-    'Uncategorized'
-  ];
-
+  private transactions: any[] = [];
+  private tags: Tag[] = [];
+  private tagMap: { [id: number]: Tag } = {};
+  dailyTotals: { date: string; total: number }[] = [];
 
   constructor(
     private data: DataService,
     private router: Router,
-    private auth: AuthService
+    private auth: AuthService,
+    private tagService: TagService
   ) {}
 
   ngOnInit(): void {
@@ -44,84 +38,95 @@ export class Dashboard implements OnInit {
       this.router.navigate(['/']);
       return;
     }
-    this.data.getTransactions().subscribe(transactions => {
-      const categoryTotals: { [key: string]: number } = {};
-      const monthTotals: { [key: string]: number } = {};
 
-      // Initialize all known categories to 0
-      for (const cat of this.allCategories) {
-        categoryTotals[cat] = 0;
-      }
+    forkJoin({
+      transactions: this.data.getTransactions(),
+      daily: this.data.getDailySummary(),
+      tags: this.tagService.getTags()
+    }).subscribe(({ transactions, daily, tags }) => {
+      this.transactions = transactions as any[];
+      this.dailyTotals = daily as any[];
+      this.tags = tags;
+      this.buildTagMap();
 
-      for (const tx of transactions as any[]) {
-        const month = (tx.transaction_date as string).slice(0, 7);
-        monthTotals[month] = (monthTotals[month] || 0) + tx.total_amount;
-
-        const cat = (tx.tags && tx.tags.length)
-          ? tx.tags[0].name
-          : this.inferCategory(tx.description || '');
-
-        if (!categoryTotals.hasOwnProperty(cat)) {
-          categoryTotals[cat] = 0; // support for dynamic categories
-        }
-
-        categoryTotals[cat] += tx.total_amount;
-      }
-
-      // Sort alphabetically before rendering
-      const sortedCategoryTotals: { [key: string]: number } = {};
-      for (const cat of Object.keys(categoryTotals).sort()) {
-        sortedCategoryTotals[cat] = categoryTotals[cat];
-      }
-
-      this.renderCategoryChart(sortedCategoryTotals);
+      const monthTotals = this.computeMonthTotals(this.transactions);
+      this.renderTagChart(null);
       this.renderMonthChart(monthTotals);
     });
   }
 
-  private inferCategory(description: string): string {
-    const desc = description.toLowerCase();
-
-    if (desc.includes('carrefour')) return 'Groceries';
-    if (desc.includes('careem')) return 'Transport';
-    if (desc.includes('talabat')) return 'Food Delivery';
-    if (desc.includes('noon')) return 'Shopping';
-    if (desc.includes('amazon')) return 'Shopping';
-    if (desc.includes('disney') || desc.includes('sephora') || desc.includes('boots')) return 'Entertainment';
-    if (desc.includes('hospital')) return 'Medical';
-    if (desc.includes('vfs')) return 'Visa/Travel';
-    if (desc.includes('government') || desc.includes('smartdxbgov') || desc.includes('dxb')) return 'Government Services';
-    if (desc.includes('tesla')) return 'Utilities';
-    if (desc.includes('fuel') || desc.includes('adnoc')) return 'Fuel';
-
-    return 'Uncategorized';
+  private buildTagMap() {
+    for (const t of this.tags) {
+      this.tagMap[t.id] = t;
+    }
   }
 
-  private renderCategoryChart(totals: { [key: string]: number }) {
+  private computeMonthTotals(transactions: any[]): { [key: string]: number } {
+    const monthTotals: { [key: string]: number } = {};
+    for (const tx of transactions) {
+      const month = (tx.transaction_date as string).slice(0, 7);
+      monthTotals[month] = (monthTotals[month] || 0) + tx.total_amount;
+    }
+    return monthTotals;
+  }
+
+  private renderTagChart(parentId: number | null) {
     if (this.categoryChart) {
       this.categoryChart.destroy();
     }
 
-    const labels = Object.keys(totals);
-    const values = Object.values(totals);
+    const relevant = this.tags.filter(t => t.parent_id === parentId);
+    const totals: { [id: number]: number } = {};
+    relevant.forEach(t => (totals[t.id] = 0));
+    if (parentId === null) {
+      totals[0] = 0; // Uncategorized
+    }
+
+    for (const tx of this.transactions) {
+      if (tx.tags && tx.tags.length) {
+        for (const tag of tx.tags) {
+          let current = this.tagMap[tag.id];
+          while (current && current.parent_id !== parentId && current.parent_id != null) {
+            current = this.tagMap[current.parent_id];
+          }
+          if (current && current.parent_id === parentId) {
+            totals[current.id] = (totals[current.id] || 0) + tx.total_amount;
+          }
+        }
+      } else if (parentId === null) {
+        totals[0] += tx.total_amount;
+      }
+    }
+
+    const labels = relevant.map(t => t.name);
+    const values = relevant.map(t => totals[t.id] || 0);
+    if (parentId === null && totals[0]) {
+      labels.push('Uncategorized');
+      values.push(totals[0]);
+    }
 
     this.categoryChart = new Chart('categoryChart', {
       type: 'pie',
       data: {
         labels,
-        datasets: [{
-          data: values,
-          backgroundColor: this.generateColors(labels.length)
-        }]
+        datasets: [{ data: values, backgroundColor: this.generateColors(labels.length) }]
       },
       options: {
         onClick: (_e, els) => {
           if (!els.length) return;
           const index = els[0].index;
-          const label = labels[index];
-          this.router.navigate(['/transactions'], {
-            queryParams: { category: label }
-          });
+          if (parentId === null && labels[index] === 'Uncategorized') {
+            this.router.navigate(['/transactions'], { queryParams: { category: 'Uncategorized' } });
+            return;
+          }
+          const tag = relevant[index];
+          if (!tag) return;
+          const children = this.tags.filter(t => t.parent_id === tag.id);
+          if (children.length) {
+            this.renderTagChart(tag.id);
+          } else {
+            this.router.navigate(['/transactions'], { queryParams: { tag: tag.id } });
+          }
         }
       }
     });
@@ -160,6 +165,10 @@ export class Dashboard implements OnInit {
         }
       }
     });
+  }
+
+  goToDay(day: string) {
+    this.router.navigate(['/transactions'], { queryParams: { day } });
   }
 
   private generateColors(count: number): string[] {

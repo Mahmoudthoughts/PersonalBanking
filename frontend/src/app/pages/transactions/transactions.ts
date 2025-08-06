@@ -66,6 +66,15 @@ export class Transactions implements OnInit {
       filtered = filtered.filter(t => (t.transaction_date as string).startsWith(params['month']));
     }
 
+    if (params['day']) {
+      filtered = filtered.filter(t => (t.transaction_date as string) === params['day']);
+    }
+
+    if (params['tag']) {
+      const tagId = +params['tag'];
+      filtered = filtered.filter(t => t.tags && t.tags.some((tag: any) => tag.id === tagId));
+    }
+
     this.transactions = filtered;
   }
 }

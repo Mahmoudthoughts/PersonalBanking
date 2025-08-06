@@ -50,10 +50,21 @@ export class DataService {
     return this.http.get<any[]>(`${environment.apiUrl}/transactions/${id}/suggest-tags`, this.headers);
   }
 
+  aiTags(id: number) {
+    return this.http.get<any[]>(`${environment.apiUrl}/transactions/${id}/ai-tags`, this.headers);
+  }
+
   getReport(month: string) {
     return this.http.get(`${environment.apiUrl}/reports/${month}`, {
       responseType: 'text',
       ...this.headers
     });
+  }
+
+  getDailySummary(params: any = {}) {
+    return this.http.get<any[]>(
+      `${environment.apiUrl}/transactions/summary/daily`,
+      { params, ...this.headers }
+    );
   }
 }
