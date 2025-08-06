@@ -10,6 +10,7 @@ import tempfile
 from ..services.pdf_parser import parse_pdf
 from ..services.cardholder_mapping import guess_cardholder
 from ..services.tagging import assign_tags, DEFAULT_KEYWORDS
+from ..services.tag_ai import tag_ai
 
 bp = Blueprint('transactions', __name__, url_prefix='/transactions')
 
@@ -249,3 +250,13 @@ def suggest_tags(transaction_id: int):
     transaction = Transaction.query.get_or_404(transaction_id)
     tags = assign_tags(transaction, DEFAULT_KEYWORDS)
     return jsonify([{'id': t.id, 'name': t.name} for t in tags])
+
+
+@bp.route('/<int:transaction_id>/ai-tags', methods=['GET'])
+@jwt_required()
+def ai_tags(transaction_id: int):
+    """Return AI-ranked tag suggestions for a transaction."""
+    current_app.logger.debug('AI suggesting tags for transaction %s', transaction_id)
+    transaction = Transaction.query.get_or_404(transaction_id)
+    suggestions = tag_ai.suggest(transaction.description)
+    return jsonify(suggestions)
