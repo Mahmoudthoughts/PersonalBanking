@@ -4,6 +4,11 @@
     <a routerLink="/transactions/new" class="btn btn-secondary">Add Transaction</a>
   </div>
   <div class="row">
+    <div class="col-12 mb-4">
+      <app-calendar-heatmap [data]="dailyTotals" (selectDay)="goToDay($event)"></app-calendar-heatmap>
+    </div>
+  </div>
+  <div class="row">
     <div class="col-md-6 mb-4">
       <canvas id="categoryChart"></canvas>
     </div>

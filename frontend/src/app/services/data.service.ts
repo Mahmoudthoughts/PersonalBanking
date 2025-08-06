@@ -45,4 +45,11 @@ export class DataService {
       ...this.headers
     });
   }
+
+  getDailySummary(params: any = {}) {
+    return this.http.get<any[]>(
+      `${environment.apiUrl}/transactions/summary/daily`,
+      { params, ...this.headers }
+    );
+  }
 }
