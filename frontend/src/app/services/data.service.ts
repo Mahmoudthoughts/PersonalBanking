@@ -27,6 +27,17 @@ export class DataService {
     return this.http.post(`${environment.apiUrl}/transactions/batch`, payload, this.headers);
   }
 
+  importTransactions(formData: FormData) {
+    return this.http.post(`${environment.apiUrl}/transactions/import`, formData, this.headers);
+  }
+
+  exportTransactions() {
+    return this.http.get(`${environment.apiUrl}/transactions/export`, {
+      responseType: 'blob',
+      ...this.headers
+    });
+  }
+
   getTransaction(id: number) {
     return this.http.get<any>(`${environment.apiUrl}/transactions/${id}`, this.headers);
   }
