@@ -1,16 +1,18 @@
-from flask import Flask
+from fastapi import FastAPI
 
-from .auth import bp as auth_bp
-from .transactions import bp as transactions_bp
-from .tags import bp as tags_bp
-from .cardholders import bp as cardholders_bp
-from .reports import bp as reports_bp
+from .auth import router as auth_router
+from .transactions import router as transactions_router
+from .tags import router as tags_router
+from .cardholders import router as cardholders_router
+from .reports import router as reports_router
+from .genai import router as genai_router
 
 
-def register_blueprints(app: Flask) -> None:
-    """Register all route blueprints with the given Flask app."""
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(transactions_bp)
-    app.register_blueprint(tags_bp)
-    app.register_blueprint(cardholders_bp)
-    app.register_blueprint(reports_bp)
+def register_routers(app: FastAPI) -> None:
+    """Register all API routers with the given FastAPI app."""
+    app.include_router(auth_router, prefix="/auth")
+    app.include_router(transactions_router, prefix="/transactions")
+    app.include_router(tags_router, prefix="/tags")
+    app.include_router(cardholders_router, prefix="/cardholders")
+    app.include_router(reports_router, prefix="/reports")
+    app.include_router(genai_router, prefix="/genai")

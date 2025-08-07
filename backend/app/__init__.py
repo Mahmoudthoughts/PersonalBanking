@@ -1,39 +1,35 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager
-from flask_cors import CORS
-from flask_migrate import Migrate
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi_jwt_auth import AuthJWT
+from pydantic import BaseModel
 
 from .log import setup_logging
+from .routes import register_routers
+
 
 db = SQLAlchemy()
-jwt = JWTManager()
-
-from .routes import register_blueprints
-from .services.tag_ai import schedule_training, tag_ai
 
 
-def create_app(config_object="app.config.Config"):
-    app = Flask(__name__)
-    app.config.from_object(config_object)
+class Settings(BaseModel):
+    authjwt_secret_key: str = "change-me"
 
-    # Configure application-wide logging
+
+@AuthJWT.load_config
+def get_config():
+    return Settings()
+
+
+def create_app(config_object: str | None = None) -> FastAPI:
     setup_logging()
-
-    # Enable CORS for all routes to allow the Angular frontend to access the API
-    CORS(app)
-
-    db.init_app(app)
-    Migrate(app, db)
-    jwt.init_app(app)
-    register_blueprints(app)
-
-    # Train tag AI in the background using existing transactions
-    with app.app_context():
-        try:
-            tag_ai.train()
-        except Exception:  # pragma: no cover - startup training errors
-            app.logger.exception("Initial TagAI training failed")
-    schedule_training(app)
-
+    app = FastAPI()
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    register_routers(app)
     return app

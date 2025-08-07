@@ -1,57 +1,66 @@
-from flask import Blueprint, request, jsonify, current_app
-from flask_jwt_extended import jwt_required
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi_jwt_auth import AuthJWT
 
 from .. import db
 from ..models import Tag
 
-bp = Blueprint('tags', __name__, url_prefix='/tags')
+
+router = APIRouter()
 
 
-@bp.route('', methods=['GET'])
-@jwt_required()
-def list_tags():
-    current_app.logger.debug('Listing tags')
+@router.get("")
+def list_tags(Authorize: AuthJWT = Depends()):
+    Authorize.jwt_required()
+    logger = logging.getLogger(__name__)
+    logger.debug('Listing tags')
     tags = Tag.query.all()
-    return jsonify([
+    return [
         {'id': t.id, 'name': t.name, 'parent_id': t.parent_id}
         for t in tags
-    ])
+    ]
 
 
-@bp.route('', methods=['POST'])
-@jwt_required()
-def create_tag():
-    payload = request.get_json() or {}
-    current_app.logger.info('Creating tag %s', payload.get('name'))
+@router.post("")
+def create_tag(payload: dict, Authorize: AuthJWT = Depends()):
+    Authorize.jwt_required()
+    logger = logging.getLogger(__name__)
+    logger.info('Creating tag %s', payload.get('name'))
     tag = Tag(name=payload['name'], parent_id=payload.get('parent_id'))
     db.session.add(tag)
     db.session.commit()
-    current_app.logger.debug('Created tag id=%s', tag.id)
-    return jsonify({'id': tag.id}), 201
+    logger.debug('Created tag id=%s', tag.id)
+    return {'id': tag.id}
 
 
-@bp.route('/<int:tag_id>', methods=['PATCH'])
-@jwt_required()
-def update_tag(tag_id: int):
+@router.patch("/{tag_id}")
+def update_tag(tag_id: int, payload: dict, Authorize: AuthJWT = Depends()):
     """Update an existing tag."""
-    current_app.logger.debug('Updating tag %s', tag_id)
-    tag = Tag.query.get_or_404(tag_id)
-    payload = request.get_json() or {}
+    Authorize.jwt_required()
+    logger = logging.getLogger(__name__)
+    logger.debug('Updating tag %s', tag_id)
+    tag = Tag.query.get(tag_id)
+    if not tag:
+        raise HTTPException(status_code=404, detail='tag not found')
     if 'name' in payload:
         tag.name = payload['name']
     if 'parent_id' in payload:
         tag.parent_id = payload['parent_id']
     db.session.commit()
-    current_app.logger.info('Updated tag id=%s', tag.id)
-    return jsonify({'id': tag.id})
+    logger.info('Updated tag id=%s', tag.id)
+    return {'id': tag.id}
 
 
-@bp.route('/<int:tag_id>', methods=['DELETE'])
-@jwt_required()
-def delete_tag(tag_id: int):
+@router.delete("/{tag_id}")
+def delete_tag(tag_id: int, Authorize: AuthJWT = Depends()):
     """Remove a tag."""
-    current_app.logger.warning('Deleting tag %s', tag_id)
-    tag = Tag.query.get_or_404(tag_id)
+    Authorize.jwt_required()
+    logger = logging.getLogger(__name__)
+    logger.warning('Deleting tag %s', tag_id)
+    tag = Tag.query.get(tag_id)
+    if not tag:
+        raise HTTPException(status_code=404, detail='tag not found')
     db.session.delete(tag)
     db.session.commit()
-    return jsonify({'status': 'deleted'})
+    return {'status': 'deleted'}
