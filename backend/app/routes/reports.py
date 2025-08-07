@@ -1,9 +1,14 @@
 from calendar import monthrange
 from datetime import date
 import io
+import logging
+from pathlib import Path
+from typing import Optional
 
-from flask import Blueprint, render_template, request, send_file, current_app
-from flask_jwt_extended import jwt_required
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi_jwt_auth import AuthJWT
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
@@ -12,21 +17,29 @@ from reportlab.lib import colors
 
 from ..models import Transaction
 
-bp = Blueprint('reports', __name__, url_prefix='/reports')
+
+templates = Environment(
+    loader=FileSystemLoader(Path(__file__).resolve().parent.parent / "templates"),
+    autoescape=select_autoescape(["html"]),
+)
+
+router = APIRouter()
 
 
-@bp.route('/<month>', methods=['GET'])
-@jwt_required()
-def monthly_report(month: str):
-    """Return an HTML or PDF spending report for the given month.
-
-    ``month`` is expected in ``YYYY-MM`` format.
-    """
-    current_app.logger.info('Generating report for %s', month)
+@router.get("/{month}", response_class=HTMLResponse)
+def monthly_report(
+    month: str,
+    format: Optional[str] = Query(None),
+    Authorize: AuthJWT = Depends(),
+):
+    """Return an HTML or PDF spending report for the given month."""
+    Authorize.jwt_required()
+    logger = logging.getLogger(__name__)
+    logger.info("Generating report for %s", month)
     try:
         start = date.fromisoformat(f"{month}-01")
     except ValueError:
-        return {"error": "invalid month"}, 400
+        raise HTTPException(status_code=400, detail="invalid month")
 
     last_day = monthrange(start.year, start.month)[1]
     end = date(start.year, start.month, last_day)
@@ -44,16 +57,15 @@ def monthly_report(month: str):
         name = t.cardholder_name or "Unknown"
         by_cardholder[name] = by_cardholder.get(name, 0) + float(t.total_amount or 0)
 
-    html = render_template(
-        'report.html',
-        month=start.strftime('%B %Y'),
+    html = templates.get_template("report.html").render(
+        month=start.strftime("%B %Y"),
         total=total,
         by_cardholder=by_cardholder,
         transactions=transactions,
     )
 
-    if request.args.get('format') == 'pdf':
-        current_app.logger.debug('Rendering PDF report for %s', month)
+    if format == "pdf":
+        logger.debug("Rendering PDF report for %s", month)
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter)
         styles = getSampleStyleSheet()
@@ -82,12 +94,8 @@ def monthly_report(month: str):
         story.append(table)
         doc.build(story)
         buffer.seek(0)
-        response = send_file(
-            buffer,
-            mimetype='application/pdf',
-            download_name=f'report-{month}.pdf'
-        )
-        return response
+        headers = {"Content-Disposition": f"attachment; filename=report-{month}.pdf"}
+        return StreamingResponse(buffer, media_type="application/pdf", headers=headers)
 
-    current_app.logger.debug('Returning HTML report for %s', month)
-    return html
+    logger.debug('Returning HTML report for %s', month)
+    return HTMLResponse(content=html)
