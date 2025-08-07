@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, Response
 from flask_jwt_extended import jwt_required
 
 from .. import db
@@ -10,6 +10,7 @@ import tempfile
 from ..services.pdf_parser import parse_pdf
 from ..services.cardholder_mapping import guess_cardholder
 from ..services.tagging import assign_tags, DEFAULT_KEYWORDS
+from ..services.import_export import export_transactions, import_transactions
 from ..services.tag_ai import tag_ai
 
 bp = Blueprint('transactions', __name__, url_prefix='/transactions')
@@ -224,6 +225,34 @@ def batch_create():
     db.session.commit()
     current_app.logger.info('Batch created %d transactions', created)
     return jsonify({'created': created}), 201
+
+
+@bp.route('/export', methods=['GET'])
+@jwt_required()
+def export_csv():
+    """Download all transactions as CSV."""
+    csv_data = export_transactions()
+    current_app.logger.info('Exporting transactions to CSV')
+    return Response(
+        csv_data,
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=transactions.csv'},
+    )
+
+
+@bp.route('/import', methods=['POST'])
+@jwt_required()
+def import_csv():
+    """Import transactions from a CSV upload."""
+    file = request.files.get('file')
+    if not file:
+        return jsonify({'error': 'no file uploaded'}), 400
+    count, errors = import_transactions(file)
+    if errors:
+        current_app.logger.warning('Import failed with errors: %s', errors)
+        return jsonify({'errors': errors}), 400
+    current_app.logger.info('Imported %d transactions from CSV', count)
+    return jsonify({'imported': count}), 201
 
 
 @bp.route('/<int:transaction_id>', methods=['GET'])

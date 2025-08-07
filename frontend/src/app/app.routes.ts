@@ -3,6 +3,7 @@ import { Login } from './pages/login/login';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { Upload } from './pages/upload/upload';
 import { ImportJson } from './pages/import-json/import-json';
+import { ImportExport } from './pages/import-export/import-export';
 import { Transactions } from './pages/transactions/transactions';
 import { AddTransaction } from './pages/add-transaction/add-transaction';
 import { TransactionDetail } from './pages/transaction-detail/transaction-detail';
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: Dashboard },
   { path: 'upload', component: Upload },
   { path: 'import-json', component: ImportJson },
+  { path: 'import-export', component: ImportExport },
   { path: 'transactions/new', component: AddTransaction },
   { path: 'transactions', component: Transactions },
   { path: 'transactions/:id', component: TransactionDetail },
