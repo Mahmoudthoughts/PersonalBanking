@@ -1,13 +1,9 @@
 flask
 flask-sqlalchemy
+flask-jwt-extended
 flask-migrate
 psycopg2-binary
 flask-cors
 pdfminer.six
 reportlab
 scikit-learn
-fastapi
-fastapi-jwt-auth
-uvicorn
-python-multipart
-openai
